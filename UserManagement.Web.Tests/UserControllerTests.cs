@@ -33,7 +33,7 @@ public class UserControllerTests
         var users = SetupUsers(activeUser, inactiveUser);
 
         //Act
-        var result = controller.List(isActive: true);
+        var result = controller.ListByActiveStatus(isActive: true);
 
         //Assert
         result.Model.Should().BeOfType<UserListViewModel>()
@@ -41,7 +41,7 @@ public class UserControllerTests
             .Which.Email.Should().Be(activeUser.Email);
     }
 
-        [Fact]
+    [Fact]
     public void List_WhenIsActiveFalse_ReturnsOnlyInactiveUsers()
     {
         //Arrange
@@ -51,7 +51,7 @@ public class UserControllerTests
         var users = SetupUsers(activeUser, inactiveUser);
 
         //Act
-        var result = controller.List(isActive: false);
+        var result = controller.ListByActiveStatus(isActive: false);
 
         //Assert
         result.Model.Should().BeOfType<UserListViewModel>()
