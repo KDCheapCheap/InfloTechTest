@@ -81,4 +81,53 @@ public class UsersController : Controller
         //Redirect back to the user list
         return RedirectToAction("List");
     }
+
+    [HttpGet("edit/{id:int}")]
+    public IActionResult Edit(int id)
+    {
+        var user = _userService.GetById(id);
+        if (user == null)
+        {
+            TempData["ErrorMessage"] = $"The requested user with id {id} could not be found.";
+            return RedirectToAction(nameof(List));
+        }
+
+        var model = new EditUserViewModel
+        {
+            Id = user.Id,
+            Forename = user.Forename,
+            Surname = user.Surname,
+            Email = user.Email,
+            DateOfBirth = user.DateOfBirth,
+            IsActive = user.IsActive,
+        };
+
+        return View(model);
+    }
+    
+    [HttpPost("edit/{id:int}")]
+    public IActionResult Edit(int id, EditUserViewModel updatedUser)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(updatedUser);
+        }
+
+        var user = _userService.GetById(id);
+        if (user == null)
+        {
+            TempData["ErrorMessage"] = $"The requested user with id {id} could not be found.";
+            return RedirectToAction(nameof(List));
+        }
+
+        user.Forename = updatedUser.Forename;
+        user.Surname = updatedUser.Surname;
+        user.Email = updatedUser.Email;
+        user.DateOfBirth = updatedUser.DateOfBirth!.Value;
+        user.IsActive = updatedUser.IsActive;
+
+        _userService.EditUser(user);
+
+        return RedirectToAction("List");
+    }
 }

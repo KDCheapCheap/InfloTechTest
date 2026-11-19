@@ -20,6 +20,36 @@ public class UserServiceTests
         result.Should().BeSameAs(users);
     }
 
+    [Fact]
+    public void GetById_WhenContextReturnsEntity_MustReturnSameEntity()
+    {
+        // Arrange
+        var service = CreateService();
+        var user = SetupUsers().First();
+
+        _dataContext.Setup(s => s.Get<User>(user.Id)).Returns(user);
+
+        // Act
+        var result = service.GetById(user.Id);
+
+        // Assert
+        result.Should().BeSameAs(user);
+    }
+
+    [Fact]
+    public void GetById_WhenContextReturnsNull_MustReturnNull()
+    {
+        // Arrange
+        var service = CreateService();
+
+        _dataContext.Setup(s => s.Get<User>(It.IsAny<int>())).Returns((User)null!);
+        // Act
+        var result = service.GetById(1);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
     private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true)
     {
         var users = new[]

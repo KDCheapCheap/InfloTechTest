@@ -12,6 +12,12 @@ public interface IUserService
     void CreateUser(User user);
 
     /// <summary>
+    /// Edits an existing user in the system.
+    /// </summary>
+    /// <param name="user"></param>
+    void EditUser(User user);
+
+    /// <summary>
     /// Returns all users with the specified active status.
     /// </summary>
     /// <param name="isActive"></param>
@@ -23,4 +29,11 @@ public interface IUserService
     /// </summary>
     /// <returns></returns>
     IEnumerable<User> GetAll();
+
+    /// <summary>
+    /// Gets a user by ID.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    User GetById(long id);
 }

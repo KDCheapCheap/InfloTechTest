@@ -63,5 +63,13 @@ public class DataContextTests
         result.Should().Contain(s => s.Email == entity.Email);
     }
 
+    [Fact]
+    public void Get_WhenEntityExists_MustReturnEntity()
+    {
+        var context = CreateContext();
+        var entity = context.GetAll<User>().First();
+        context.Get<User>(entity.Id).Should().BeSameAs(entity);
+    }
+
     private DataContext CreateContext() => new();
 }

@@ -12,6 +12,14 @@ public interface IDataContext
     IQueryable<TEntity> GetAll<TEntity>() where TEntity : class;
 
     /// <summary>
+    /// Get an item by ID
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    TEntity Get<TEntity>(long id) where TEntity : class;
+
+    /// <summary>
     /// Create a new item
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
@@ -20,12 +28,17 @@ public interface IDataContext
     void Create<TEntity>(TEntity entity) where TEntity : class;
 
     /// <summary>
-    /// Uodate an existing item matching the ID
+    /// Update an existing item matching the ID
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
     /// <param name="entity"></param>
     /// <returns></returns>
     void Update<TEntity>(TEntity entity) where TEntity : class;
 
+    /// <summary>
+    /// Delete an item
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <param name="entity"></param>
     void Delete<TEntity>(TEntity entity) where TEntity : class;
 }
