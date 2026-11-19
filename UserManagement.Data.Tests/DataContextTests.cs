@@ -1,5 +1,4 @@
 using System.Linq;
-using FluentAssertions;
 using UserManagement.Models;
 
 namespace UserManagement.Data.Tests;
@@ -42,6 +41,26 @@ public class DataContextTests
 
         // Assert: Verifies that the action of the method under test behaves as expected.
         result.Should().NotContain(s => s.Email == entity.Email);
+    }
+
+    [Fact]
+    public void Create_WhenNewEntityAdded_MustIncludeNewEntity()
+    {
+        // Arrange
+        var context = CreateContext();
+        var entity = new User
+        {
+            Forename = "Test",
+            Surname = "User",
+            Email = "testuser@example.com"
+        };
+
+        // Act
+        context.Create(entity);
+        var result = context.GetAll<User>();
+
+        // Assert
+        result.Should().Contain(s => s.Email == entity.Email);
     }
 
     private DataContext CreateContext() => new();

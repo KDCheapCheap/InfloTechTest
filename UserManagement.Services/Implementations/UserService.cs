@@ -11,6 +11,11 @@ public class UserService : IUserService
     private readonly IDataContext _dataAccess;
     public UserService(IDataContext dataAccess) => _dataAccess = dataAccess;
 
+    public void CreateUser(User user)
+    {
+        _dataAccess.Create(user);
+    }
+
     /// <summary>
     /// Return users by active state
     /// </summary>
