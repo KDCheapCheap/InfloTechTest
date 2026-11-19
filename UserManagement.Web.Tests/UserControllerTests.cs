@@ -97,6 +97,19 @@ public class UserControllerTests
     }
 
     [Fact]
+    public void View_WhenUserExists_ReturnsView()
+    {
+        const long userId = 42;
+        var user = new User { Id = userId };
+        _userService.Setup(service => service.GetById(userId)).Returns(user);
+        var controller = CreateController();
+
+        var result = controller.View(userId);
+
+        result.Should().BeOfType<ViewResult>();
+    }
+
+    [Fact]
     public void CreateUser_WhenModelIsValid_CreatesUser(){
         //Arrange
         var controller = CreateController();

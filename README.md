@@ -5,6 +5,12 @@ We recommend that you use [Visual Studio (Community Edition)](https://visualstud
 
 **The application uses an in-memory database, so changes will not be persisted between executions.**
 
+## Packages / Libraries
+### Heroicons.AspNetCore
+*[Package Link](https://www.nuget.org/packages/Heroicons.AspNetCore.Mvc.TagHelpers/)*
+
+I added this to improve the look of the frontend a little. This package allows easy usage of [Heroicons](https://heroicons.com/) in an MVC application.
+
 ## The Exercise
 Complete as many of the tasks below as you feel comfortable with. These are split into 4 levels of difficulty 
 * **Standard** - Functionality that is common when working as a web developer

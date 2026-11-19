@@ -83,7 +83,7 @@ public class UsersController : Controller
     }
 
     [HttpGet("edit/{id:int}")]
-    public IActionResult Edit(int id)
+    public IActionResult Edit(int id, string returnUrl = "List")
     {
         var user = _userService.GetById(id);
         if (user == null)
@@ -100,14 +100,18 @@ public class UsersController : Controller
             Email = user.Email,
             DateOfBirth = user.DateOfBirth,
             IsActive = user.IsActive,
+            ReturnUrl = NormalizeReturnUrl(returnUrl)
         };
 
-        return View(model);
+        return View(model); // maybe pass returnUrl too
     }
-    
+
     [HttpPost("edit/{id:int}")]
     public IActionResult Edit(int id, EditUserViewModel updatedUser)
     {
+        updatedUser.Id = id;
+        updatedUser.ReturnUrl = NormalizeReturnUrl(updatedUser.ReturnUrl);
+
         if (!ModelState.IsValid)
         {
             return View(updatedUser);
@@ -128,6 +132,41 @@ public class UsersController : Controller
 
         _userService.EditUser(user);
 
-        return RedirectToAction("List");
+        return updatedUser.ReturnUrl == nameof(View)
+            ? RedirectToAction(nameof(View), new { id })
+            : RedirectToAction(nameof(List));
+    }
+
+    [HttpGet("view/{id:int}")]
+    public IActionResult View(int id)
+    {
+        var user = _userService.GetById(id);
+        if (user == null)
+        {
+            TempData["ErrorMessage"] = $"The requested user with id {id} could not be found.";
+            return RedirectToAction(nameof(List));
+        }
+
+        var model = new ViewUserViewModel
+        {
+            Id = user.Id,
+            Forename = user.Forename,
+            Surname = user.Surname,
+            Email = user.Email,
+            DateOfBirth = user.DateOfBirth,
+            IsActive = user.IsActive
+        };
+
+        return View(model);
+    }
+
+    private static string NormalizeReturnUrl(string? returnUrl)
+    {
+        if (returnUrl == null || !returnUrl.Equals("View"))
+        {
+            return "List";
+        }
+
+        return "View";
     }
 }

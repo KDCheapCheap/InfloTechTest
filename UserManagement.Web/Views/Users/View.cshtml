@@ -1,0 +1,46 @@
+@model UserManagement.Web.Models.Users.ViewUserViewModel
+@{
+    ViewData["Title"] = @Model.Forename + " " + @Model.Surname;
+}
+<div class="container">
+    <div>
+        <div class="row align-items-center mb-3">
+            <div class="col-12 col-sm-8">
+                <h1>User Details</h1>
+            </div>
+            <div class="col-12 col-sm-4 d-flex justify-content-start justify-content-sm-end gap-2 mt-2 mt-sm-0">
+                <a asp-controller="Users" asp-action="Edit" asp-route-id="@Model.Id" asp-route-returnUrl="View" class="btn btn-sm btn-outline-primary">
+                    <heroicon kind="Outline" name="Pencil" class="user-action-icon me-1" />Edit
+                </a>
+                <a asp-controller="Users" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-danger">
+                    <heroicon kind="Outline" name="Trash" class="user-action-icon me-1" />Delete
+                </a>
+            </div>
+        </div>
+
+        <dl class="row">
+            <dt class="col-2">Forename</dt>
+            <dd class="col-10">@Model.Forename</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-2">Surname</dt>
+            <dd class="col-10">@Model.Surname</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-2">Email</dt>
+            <dd class="col-10">@Model.Email</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-2">Date of Birth</dt>
+            <dd class="col-10">@Model.DateOfBirth.ToShortDateString()</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-2">Active</dt>
+            <dd class="col-10">@Model.IsActive</dd>
+        </dl>
+
+        <a asp-controller="Users" asp-action="List" class="btn btn-sm btn-secondary d-inline-flex align-items-center">
+            <heroicon kind="Outline" name="ArrowLeft" class="user-action-icon me-1" />Back to list
+        </a>
+    </div>
+
