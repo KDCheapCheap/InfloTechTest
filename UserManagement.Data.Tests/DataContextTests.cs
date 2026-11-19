@@ -71,5 +71,14 @@ public class DataContextTests
         context.Get<User>(entity.Id).Should().BeSameAs(entity);
     }
 
+    [Fact]
+    public void Delete_WhenEntityDeleted_MustNotIncludeIt()
+    {
+        var context = CreateContext();
+        var entity = context.GetAll<User>().First();
+        context.Delete(entity);
+        context.GetAll<User>().Should().NotContain(s => s.Email == entity.Email);
+    }
+
     private DataContext CreateContext() => new();
 }

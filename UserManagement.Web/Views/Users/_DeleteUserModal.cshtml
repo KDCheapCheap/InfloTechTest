@@ -1,0 +1,25 @@
+<div class="modal fade" id="deleteUserModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="deleteUserModalLabel">Delete user?</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" title="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="d-flex align-items-center justify-content-center rounded-circle bg-light text-danger p-3 flex-shrink-0">
+                        <heroicon kind="Outline" name="ExclamationTriangle" class="user-action-icon" />
+                    </div>
+                    <div>
+                        <p class="mb-1">Are you sure you want to delete <strong id="deleteUserName"></strong>?</p>
+                        <p class="text-body-secondary mb-0">This action cannot be undone.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteUser">Delete user</button>
+            </div>
+        </div>
+    </div>
+</div>

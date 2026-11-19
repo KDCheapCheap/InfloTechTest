@@ -42,19 +42,17 @@
                         <td>@(item.IsActive ? "Yes" : "No")</td>
                         <td class="user-actions-column">
                             <div class="user-actions">
-                                <a asp-controller="Users" asp-action="View" asp-route-id="@item.Id"
-                                   class="btn btn-sm btn-outline-secondary" title="View" data-bs-toggle="tooltip">
+                                <a asp-controller="Users" asp-action="View" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="View" data-bs-toggle="tooltip">
                                     <heroicon kind="Outline" name="Eye" class="user-action-icon" />
                                 </a>
-                                <a asp-controller="Users" asp-action="Edit" asp-route-id="@item.Id"
-                                   asp-route-returnUrl="List" class="btn btn-sm btn-outline-primary" title="Edit"
-                                   data-bs-toggle="tooltip">
+                                <a asp-controller="Users" asp-action="Edit" asp-route-id="@item.Id" asp-route-returnUrl="List" class="btn btn-sm btn-outline-primary" title="Edit" data-bs-toggle="tooltip">
                                     <heroicon kind="Outline" name="Pencil" class="user-action-icon" />
                                 </a>
-                                <a asp-controller="Users" asp-action="Delete" asp-route-id="@item.Id"
-                                   class="btn btn-sm btn-outline-danger" title="Delete" data-bs-toggle="tooltip">
-                                    <heroicon kind="Outline" name="Trash" class="user-action-icon" />
-                                </a>
+                                <form asp-controller="Users" asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" data-confirm-delete data-user-name="@item.Forename @item.Surname">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete" data-bs-toggle="tooltip">
+                                        <heroicon kind="Outline" name="Trash" class="user-action-icon" />
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>
@@ -75,6 +73,8 @@
         <a asp-controller="Users" asp-action="ListByActiveStatus" asp-route-isActive="false" class="btn @(hasStatusFilter && !activeFilter ? "btn-primary" : "btn-outline-primary")">Non Active</a>
     </div>
 </div>
+
+<partial name="_DeleteUserModal" />
 
     @{
         ViewData["Title"] = "User List";

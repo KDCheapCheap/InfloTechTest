@@ -50,6 +50,20 @@ public class UserServiceTests
         result.Should().BeNull();
     }
 
+    [Fact]
+    public void DeleteUser_CallsContextDelete()
+    {
+        // Arrange
+        var service = CreateService();
+        var user = SetupUsers().First();
+
+        // Act
+        service.DeleteUser(user);
+
+        // Assert
+        _dataContext.Verify(s => s.Delete(user));
+    }
+
     private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true)
     {
         var users = new[]

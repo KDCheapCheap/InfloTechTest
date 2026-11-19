@@ -18,6 +18,12 @@ public interface IUserService
     void EditUser(User user);
 
     /// <summary>
+    /// Deletes a user.
+    /// </summary>
+    /// <param name="id"></param>
+    void DeleteUser(User user);
+
+    /// <summary>
     /// Returns all users with the specified active status.
     /// </summary>
     /// <param name="isActive"></param>

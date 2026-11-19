@@ -141,6 +141,7 @@ public class UsersController : Controller
     public IActionResult View(int id)
     {
         var user = _userService.GetById(id);
+
         if (user == null)
         {
             TempData["ErrorMessage"] = $"The requested user with id {id} could not be found.";
@@ -158,6 +159,22 @@ public class UsersController : Controller
         };
 
         return View(model);
+    }
+
+    [HttpPost("delete/{id:int}")]
+    public IActionResult Delete(long id)
+    {
+        var user = _userService.GetById(id);
+
+        if (user == null)
+        {
+            TempData["ErrorMessage"] = $"The requested user with id {id} could not be found.";
+            return RedirectToAction(nameof(List));
+        }
+
+        _userService.DeleteUser(user);
+
+        return RedirectToAction(nameof(List));
     }
 
     private static string NormalizeReturnUrl(string? returnUrl)
