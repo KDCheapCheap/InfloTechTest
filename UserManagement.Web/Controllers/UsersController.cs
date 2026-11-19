@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
 using UserManagement.Web.Models.Users;
 
@@ -8,6 +9,7 @@ namespace UserManagement.WebMS.Controllers;
 public class UsersController : Controller
 {
     private readonly IUserService _userService;
+
     public UsersController(IUserService userService) => _userService = userService;
 
     [HttpGet]
@@ -22,13 +24,10 @@ public class UsersController : Controller
             Surname = p.Surname,
             Email = p.Email,
             DateOfBirth = p.DateOfBirth,
-            IsActive = p.IsActive
+            IsActive = p.IsActive,
         });
 
-        var model = new UserListViewModel
-        {
-            Items = items.ToList()
-        };
+        var model = new UserListViewModel { Items = items.ToList() };
 
         return View(model);
     }
@@ -45,14 +44,146 @@ public class UsersController : Controller
             Surname = p.Surname,
             Email = p.Email,
             DateOfBirth = p.DateOfBirth,
-            IsActive = p.IsActive
+            IsActive = p.IsActive,
         });
 
-        var model = new UserListViewModel
-        {
-            Items = items.ToList()
-        };
+        var model = new UserListViewModel { Items = items.ToList() };
 
         return View("List", model);
+    }
+
+    [HttpGet("create")]
+    public ViewResult Create()
+    {
+        return View();
+    }
+
+    [HttpPost("CreateUser")]
+    [Route("CreateUser")]
+    public IActionResult CreateUser(CreateUserViewModel newUser)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View("Create", newUser);
+        }
+
+        var user = new User()
+        {
+            Forename = newUser.Forename,
+            Surname = newUser.Surname,
+            Email = newUser.Email,
+            DateOfBirth = newUser.DateOfBirth!.Value,
+            IsActive = newUser.IsActive,
+        };
+
+        _userService.CreateUser(user);
+
+        //Redirect back to the user list
+        return RedirectToAction("List");
+    }
+
+    [HttpGet("edit/{id:int}")]
+    public IActionResult Edit(int id, string returnUrl = "List")
+    {
+        var user = _userService.GetById(id);
+        if (user == null)
+        {
+            TempData["ErrorMessage"] = $"The requested user with id {id} could not be found.";
+            return RedirectToAction(nameof(List));
+        }
+
+        var model = new EditUserViewModel
+        {
+            Id = user.Id,
+            Forename = user.Forename,
+            Surname = user.Surname,
+            Email = user.Email,
+            DateOfBirth = user.DateOfBirth,
+            IsActive = user.IsActive,
+            ReturnUrl = NormalizeReturnUrl(returnUrl)
+        };
+
+        return View(model); // maybe pass returnUrl too
+    }
+
+    [HttpPost("edit/{id:int}")]
+    public IActionResult Edit(int id, EditUserViewModel updatedUser)
+    {
+        updatedUser.Id = id;
+        updatedUser.ReturnUrl = NormalizeReturnUrl(updatedUser.ReturnUrl);
+
+        if (!ModelState.IsValid)
+        {
+            return View(updatedUser);
+        }
+
+        var user = _userService.GetById(id);
+        if (user == null)
+        {
+            TempData["ErrorMessage"] = $"The requested user with id {id} could not be found.";
+            return RedirectToAction(nameof(List));
+        }
+
+        user.Forename = updatedUser.Forename;
+        user.Surname = updatedUser.Surname;
+        user.Email = updatedUser.Email;
+        user.DateOfBirth = updatedUser.DateOfBirth!.Value;
+        user.IsActive = updatedUser.IsActive;
+
+        _userService.EditUser(user);
+
+        return updatedUser.ReturnUrl == nameof(View)
+            ? RedirectToAction(nameof(View), new { id })
+            : RedirectToAction(nameof(List));
+    }
+
+    [HttpGet("view/{id:int}")]
+    public IActionResult View(int id)
+    {
+        var user = _userService.GetById(id);
+
+        if (user == null)
+        {
+            TempData["ErrorMessage"] = $"The requested user with id {id} could not be found.";
+            return RedirectToAction(nameof(List));
+        }
+
+        var model = new ViewUserViewModel
+        {
+            Id = user.Id,
+            Forename = user.Forename,
+            Surname = user.Surname,
+            Email = user.Email,
+            DateOfBirth = user.DateOfBirth,
+            IsActive = user.IsActive
+        };
+
+        return View(model);
+    }
+
+    [HttpPost("delete/{id:int}")]
+    public IActionResult Delete(long id)
+    {
+        var user = _userService.GetById(id);
+
+        if (user == null)
+        {
+            TempData["ErrorMessage"] = $"The requested user with id {id} could not be found.";
+            return RedirectToAction(nameof(List));
+        }
+
+        _userService.DeleteUser(user);
+
+        return RedirectToAction(nameof(List));
+    }
+
+    private static string NormalizeReturnUrl(string? returnUrl)
+    {
+        if (returnUrl == null || !returnUrl.Equals("View"))
+        {
+            return "List";
+        }
+
+        return "View";
     }
 }

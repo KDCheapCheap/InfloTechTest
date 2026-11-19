@@ -1,72 +1,89 @@
 ﻿@model UserManagement.Web.Models.Users.UserListViewModel
 
-<h2>User List</h2>
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div id="usersListErrorMessage" class="alert alert-warning" role="alert">@errorMessage</div>
+}
+<div class="row">
+    <div class="col-9">
+        <h2>User List</h2>
+    </div>
+    <div class="col-3">
+        <a asp-controller="Users" asp-action="Create" class="btn btn-success float-end d-inline-flex align-items-center">
+            <heroicon kind="Outline" name="Plus" class="user-action-icon me-1" /> Add User
+        </a>
+    </div>
+</div>
 
-<div class="table-responsive">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Forename</th>
-                <th>Surname</th>
-                <th>Email</th>
-                <th>Date of Birth</th>
-                <th>Account Active</th>
-                <th style="width: 1px;"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Items)
-            {
+<div class="row mb-3">
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
                 <tr>
-                    <td>
-                        @item.Id
-                    </td>
-                    <td>
-                        @item.Forename
-                    </td>
-                    <td>
-                        @item.Surname
-                    </td>
-                    <td>
-                        @item.Email
-                    </td>
-                    <td>
-                        @item.DateOfBirth.ToString("dd/MM/yyyy")
-                    </td>
-                    <td>
-                        @(item.IsActive ? "Yes" : "No")
-                    </td>
-                    <td>
-                        <div class="dropdown">
-                            <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" id="btnToggleActions">
-                                Actions
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="btnToggleActions">
-                                <li><a class="dropdown-item" href="#">View</a></li>
-                                <li><a class="dropdown-item" href="#">Edit</a></li>
-                                <li><a class="dropdown-item" href="#">Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
+                    <th>Id</th>
+                    <th>Forename</th>
+                    <th>Surname</th>
+                    <th>Email</th>
+                    <th>Date of Birth</th>
+                    <th>Account Active</th>
+                    <th class="user-actions-column">Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.Forename</td>
+                        <td>@item.Surname</td>
+                        <td>@item.Email</td>
+                        <td>@item.DateOfBirth.ToString("dd/MM/yyyy")</td>
+                        <td>@(item.IsActive ? "Yes" : "No")</td>
+                        <td class="user-actions-column">
+                            <div class="user-actions">
+                                <a asp-controller="Users" asp-action="View" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="View" data-bs-toggle="tooltip">
+                                    <heroicon kind="Outline" name="Eye" class="user-action-icon" />
+                                </a>
+                                <a asp-controller="Users" asp-action="Edit" asp-route-id="@item.Id" asp-route-returnUrl="List" class="btn btn-sm btn-outline-primary" title="Edit" data-bs-toggle="tooltip">
+                                    <heroicon kind="Outline" name="Pencil" class="user-action-icon" />
+                                </a>
+                                <form asp-controller="Users" asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" data-confirm-delete data-user-name="@item.Forename @item.Surname">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete" data-bs-toggle="tooltip">
+                                        <heroicon kind="Outline" name="Trash" class="user-action-icon" />
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <div>
-    <div class="btn-group" role="group">
-        <a asp-controller="Users" asp-action="List" class="btn btn-default">Show All</a>
-        <a asp-controller="Users" asp-action="ListByActiveStatus" asp-route-isActive="true" class="btn btn-default">Active Only</a>
-        <a asp-controller="Users" asp-action="ListByActiveStatus" asp-route-isActive="false" class="btn btn-default">Non Active</a>
+    @{
+        var hasStatusFilter = bool.TryParse(
+            ViewContext.RouteData.Values["isActive"]?.ToString(), out var activeFilter);
+    }
+     <div class="btn-group">
+        <a asp-controller="Users" asp-action="List" class="btn @(!hasStatusFilter ? "btn-primary" : "btn-outline-primary")">Show All</a>
+        <a asp-controller="Users" asp-action="ListByActiveStatus" asp-route-isActive="true" class="btn @(hasStatusFilter && activeFilter ? "btn-primary" : "btn-outline-primary")">Active Only</a>
+        <a asp-controller="Users" asp-action="ListByActiveStatus" asp-route-isActive="false" class="btn @(hasStatusFilter && !activeFilter ? "btn-primary" : "btn-outline-primary")">Non Active</a>
     </div>
-
-    <a href="#" class="btn btn-primary float-end">
-        Add User
-    </a>
 </div>
 
-@{
-    ViewData["Title"] = "User List";
-}
+<partial name="_DeleteUserModal" />
+
+    @{
+        ViewData["Title"] = "User List";
+    }
+
+    @section Scripts {
+        <script>
+            setTimeout(() => {
+                document.getElementById("usersListErrorMessage")?.remove();
+            }, 5000);
+        </script>
+    }

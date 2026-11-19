@@ -1,0 +1,55 @@
+@model UserManagement.Web.Models.Users.EditUserViewModel
+
+@{
+    var maxDate = DateTime.Today.ToString("yyyy-MM-dd");
+    ViewData["Title"] = "Edit User";
+}
+
+<h1>Edit User</h1>
+
+<form asp-controller="Users" asp-action="Edit" asp-route-id="@Model.Id" method="post">
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="ReturnUrl" type="hidden" />
+    <div class="row">
+        <div class="form-group mb-2 col-6">
+            <label asp-for="Forename" class="control-label"></label>
+            <input asp-for="Forename" class="form-control" />
+            <span asp-validation-for="Forename" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-2 col-6">
+            <label asp-for="Surname" class="control-label"></label>
+            <input asp-for="Surname" class="form-control" />
+            <span asp-validation-for="Surname" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group mb-2 col-6">
+            <label asp-for="Email" class="control-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-2 col-6">
+            <label class="control-label">Date of Birth</label>
+            <input asp-for="DateOfBirth" type="date" class="form-control" max="@maxDate" asp-format="{0:yyyy-MM-dd}" />
+            <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-check form-switch mb-2">
+        <input asp-for="IsActive" class="form-check-input" role="switch" />
+        <label class="form-check-label" asp-for="IsActive">Active</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    @if (Model.ReturnUrl == "View")
+    {
+        <a asp-controller="Users" asp-action="View" asp-route-id="@Model.Id" class="btn btn-secondary">Cancel</a>
+    }
+    else
+    {
+        <a asp-controller="Users" asp-action="List" class="btn btn-secondary">Cancel</a>
+    }
+</form>
+

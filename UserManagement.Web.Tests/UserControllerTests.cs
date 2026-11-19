@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
 using UserManagement.Web.Models.Users;
@@ -93,6 +94,48 @@ public class UserControllerTests
         result.Model.Should().BeOfType<UserListViewModel>()
             .Which.Items.Should().ContainSingle()
             .Which.DateOfBirth.Should().Be(new System.DateTime(1984, 10, 28));
+    }
+
+    [Fact]
+    public void View_WhenUserExists_ReturnsView()
+    {
+        const long userId = 42;
+        var user = new User { Id = userId };
+        _userService.Setup(service => service.GetById(userId)).Returns(user);
+        var controller = CreateController();
+
+        var result = controller.View(userId);
+
+        result.Should().BeOfType<ViewResult>();
+    }
+
+    [Fact]
+    public void CreateUser_WhenModelIsValid_CreatesUser(){
+        //Arrange
+        var controller = CreateController();
+        var newUser = new CreateUserViewModel
+        {
+            Forename = "John",
+            Surname = "Doe",
+            Email = "john.doe@example.com",
+            DateOfBirth = new System.DateTime(1990, 1, 1),
+            IsActive = true
+        };
+
+        //Act
+        var result = controller.CreateUser(newUser);
+
+        //Assert
+        _userService.Verify(service => service.CreateUser(It.Is<User>(u =>
+            u.Forename == newUser.Forename &&
+            u.Surname == newUser.Surname &&
+            u.Email == newUser.Email &&
+            u.DateOfBirth == newUser.DateOfBirth.Value &&
+            u.IsActive == newUser.IsActive
+        )), Times.Once);
+
+        result.Should().BeOfType<RedirectToActionResult>()
+            .Which.ActionName.Should().Be("List");
     }
 
     private User[] SetupUsers(params User[] testUsers)

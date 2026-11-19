@@ -9,17 +9,45 @@ namespace UserManagement.Services.Domain.Implementations;
 public class UserService : IUserService
 {
     private readonly IDataContext _dataAccess;
+
     public UserService(IDataContext dataAccess) => _dataAccess = dataAccess;
 
-    /// <summary>
-    /// Return users by active state
-    /// </summary>
-    /// <param name="isActive"></param>
-    /// <returns></returns>
-    public IEnumerable<User> FilterByActive(bool isActive)
+    public void CreateUser(User user)
     {
-       return _dataAccess.GetAll<User>().Where(u => u.IsActive == isActive);
+        _dataAccess.Create(user);
     }
 
-    public IEnumerable<User> GetAll() => _dataAccess.GetAll<User>();
+
+    public void EditUser(User user) 
+    {
+        _dataAccess.Update(user);
+    }
+
+    public void DeleteUser(User user)
+    {
+        _dataAccess.Delete(user);
+    }
+
+    public IEnumerable<User> FilterByActive(bool isActive)
+    {
+        return _dataAccess.GetAll<User>().Where(u => u.IsActive == isActive);
+    }
+
+    public IEnumerable<User> GetAll()
+    {
+        return _dataAccess.GetAll<User>();
+    }
+
+    public User GetById(long id)
+    {
+        try
+        {
+            var user = _dataAccess.Get<User>(id);
+            return user;
+        }
+        catch
+        {
+            return null!;
+        }
+    }
 }
