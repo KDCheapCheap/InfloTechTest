@@ -1,0 +1,168 @@
+@using System.Text.Json
+@model UserManagement.Web.Models.AuditLogs.ViewAuditLogViewModel
+
+@{
+	ViewData["Title"] = $"Audit Log #{Model.Id}";
+	var actionBadgeClass = Model.Action switch
+	{
+		UserManagement.Data.Entities.AuditAction.Create => "bg-success",
+		UserManagement.Data.Entities.AuditAction.Update => "bg-primary",
+		UserManagement.Data.Entities.AuditAction.Delete => "bg-danger",
+		_ => "bg-secondary"
+	};
+
+    // Parse JSON for before/after values
+    
+	var beforeIsValid = TryParseProperties(Model.ObjectBeforeJson, out var before);
+	var afterIsValid = TryParseProperties(Model.ObjectAfterJson, out var after);
+	var fieldNames = before.Keys.Union(after.Keys).OrderBy(name => name).ToList();
+	var changes = fieldNames
+		.Select(name =>
+		{
+			var existsBefore = before.TryGetValue(name, out var beforeValue);
+			var existsAfter = after.TryGetValue(name, out var afterValue);
+			var status = !existsBefore ? "Added" : !existsAfter ? "Removed" : beforeValue == afterValue ? "Unchanged" : "Changed";
+			return new { Name = name, Before = beforeValue, After = afterValue, Status = status };
+		})
+		.Where(change => change.Status != "Unchanged")
+		.ToList();
+}
+
+<div class="container">
+	<h1 class="mb-3">Audit Log Details</h1>
+
+	<section class="mb-4" aria-labelledby="audit-log-information-heading">
+		<h2 id="audit-log-information-heading" class="h4">Information</h2>
+		<dl class="row">
+			<dt class="col-4 col-md-2">Log ID</dt>
+			<dd class="col-8 col-md-10">@Model.Id</dd>
+
+			<dt class="col-4 col-md-2">Action</dt>
+			<dd class="col-8 col-md-10"><span class="badge rounded-pill @actionBadgeClass">@Model.Action</span></dd>
+
+			<dt class="col-4 col-md-2">Object Type</dt>
+			<dd class="col-8 col-md-10">@Model.ObjectType</dd>
+
+			<dt class="col-4 col-md-2">Object ID</dt>
+			<dd class="col-8 col-md-10">@Model.ObjectId</dd>
+
+			<dt class="col-4 col-md-2">Recorded</dt>
+			<dd class="col-8 col-md-10">@Model.CreatedAt.ToLocalTime().ToString("g")</dd>
+		</dl>
+	</section>
+
+	<section class="mb-4" aria-labelledby="audit-log-changes-heading">
+		<h2 id="audit-log-changes-heading" class="h4">Changes</h2>
+
+		@if (!beforeIsValid || !afterIsValid)
+		{
+			<p class="text-muted">Change details could not be read.</p>
+		}
+		else if (changes.Count == 0)
+		{
+			<p class="text-muted">No property changes were recorded.</p>
+		}
+		else
+		{
+			<div class="table-responsive">
+				<table class="table table-striped align-middle">
+					<thead>
+						<tr>
+							<th scope="col">Field</th>
+							<th scope="col">Before</th>
+							<th scope="col">After</th>
+							<th scope="col">Change</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var change in changes)
+						{
+							var badgeClass = change.Status switch
+							{
+								"Added" => "bg-success",
+								"Removed" => "bg-danger",
+								_ => "bg-primary"
+							};
+							<tr>
+								<th scope="row">@change.Name</th>
+								<td>@(change.Before ?? "Not recorded")</td>
+								<td>@(change.After ?? "Not recorded")</td>
+								<td><span class="badge @badgeClass">@change.Status</span></td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</section>
+
+	<a asp-controller="AuditLogs" asp-action="List" class="btn btn-sm btn-secondary d-inline-flex align-items-center">
+		<heroicon kind="Outline" name="ArrowLeft" class="user-action-icon me-1" />Back to list
+	</a>
+</div>
+
+@functions {
+	private static bool TryParseProperties(string? json, out Dictionary<string, string> properties)
+	{
+		properties = new Dictionary<string, string>(StringComparer.Ordinal);
+		if (string.IsNullOrWhiteSpace(json))
+		{
+			return true;
+		}
+
+		try
+		{
+			using var document = JsonDocument.Parse(json);
+			AddProperties(document.RootElement, string.Empty, properties);
+			return true;
+		}
+		catch (JsonException)
+		{
+			return false;
+		}
+	}
+
+	private static void AddProperties(JsonElement element, string path, IDictionary<string, string> properties)
+	{
+		if (element.ValueKind == JsonValueKind.Object)
+		{
+			var children = element.EnumerateObject().ToList();
+			if (children.Count == 0 && path.Length > 0)
+			{
+				properties[path] = "No details";
+			}
+
+			foreach (var child in children)
+			{
+				var childPath = path.Length == 0 ? child.Name : $"{path}.{child.Name}";
+				if (child.Value.ValueKind == JsonValueKind.Object)
+				{
+					AddProperties(child.Value, childPath, properties);
+				}
+				else
+				{
+					properties[childPath] = FormatValue(child.Value);
+				}
+			}
+
+			return;
+		}
+
+		properties[path.Length == 0 ? "Value" : path] = FormatValue(element);
+	}
+
+	private static string FormatValue(JsonElement element)
+	{
+		return element.ValueKind switch
+		{
+			JsonValueKind.Array => string.Join(", ", element.EnumerateArray().Select(FormatValue)),
+			JsonValueKind.Object => string.Join(", ", element.EnumerateObject().Select(property => $"{property.Name}: {FormatValue(property.Value)}")),
+			JsonValueKind.String => element.GetString() ?? string.Empty,
+			JsonValueKind.Number => element.GetRawText(),
+			JsonValueKind.True => "Yes",
+			JsonValueKind.False => "No",
+			JsonValueKind.Null => "Not set",
+			_ => string.Empty
+		};
+	}
+}

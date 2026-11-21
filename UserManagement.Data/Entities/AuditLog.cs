@@ -8,7 +8,7 @@ namespace UserManagement.Data.Entities
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         public AuditAction Action { get; set; }
 

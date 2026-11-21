@@ -5,13 +5,15 @@ namespace UserManagement.Web.Models.AuditLogs;
 
 public class ViewAuditLogViewModel
 {
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         public AuditAction Action { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
         public string ObjectType { get; set; } = default!;
+
+        public long ObjectId { get; set; }
 
         public string? ObjectBeforeJson { get; set; }
 

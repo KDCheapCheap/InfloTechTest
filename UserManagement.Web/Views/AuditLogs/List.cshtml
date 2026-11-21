@@ -1,5 +1,10 @@
 @model UserManagement.Web.Models.AuditLogs.AuditLogsListViewModel
 
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div id="auditListErrorMessage" class="alert alert-warning" role="alert">@errorMessage</div>
+}
+
 <h2>Audit Logs</h2>
 
 <div class="row mb-3">
@@ -53,4 +58,12 @@
 
 @{
     ViewData["Title"] = "Audit Logs";
+}
+
+@section Scripts {
+    <script>
+        setTimeout(() => {
+            document.getElementById("auditListErrorMessage")?.remove();
+        }, 5000);
+    </script>
 }

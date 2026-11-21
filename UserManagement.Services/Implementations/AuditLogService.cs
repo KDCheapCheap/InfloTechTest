@@ -18,16 +18,24 @@ public class AuditLogService : IAuditLogService
         _dataContext.Create(new AuditLog
         {
             Action = action,
-            ObjectType = GetObjectType<T>(),
+            ObjectType = typeof(T).Name,
             ObjectId = objectId,
             ObjectBeforeJson = objectBefore is null ? null : JsonSerializer.Serialize(objectBefore),
             ObjectAfterJson = objectAfter is null ? null : JsonSerializer.Serialize(objectAfter)
         });
     }
 
-    public AuditLog GetLog(int id)
+    public AuditLog GetLog(long id)
     {
-        return _dataContext.Get<AuditLog>(id);
+        try
+        {
+            var log = _dataContext.Get<AuditLog>(id);
+            return log;
+        }
+        catch
+        {
+            return null!;
+        }
     }
 
     public IEnumerable<AuditLog> GetAll()
@@ -35,11 +43,13 @@ public class AuditLogService : IAuditLogService
         return _dataContext.GetAll<AuditLog>();
     }
 
-    public IEnumerable<AuditLog> GetForObject<T>(long objectId)
+    public IEnumerable<AuditLog> GetAllForType<T>()
     {
-        return _dataContext.GetAll<AuditLog>()
-            .Where(log => log.ObjectType == GetObjectType<T>() && log.ObjectId == objectId);
+        return _dataContext.GetAll<AuditLog>().Where(log => log.ObjectType == typeof(T).Name);
     }
 
-    private static string GetObjectType<T>() => typeof(T).Name;
+    public IEnumerable<AuditLog> GetAllForObject<T>(long objectId)
+    {
+        return _dataContext.GetAll<AuditLog>().Where(log => log.ObjectType == typeof(T).Name && log.ObjectId == objectId);
+    }
 }

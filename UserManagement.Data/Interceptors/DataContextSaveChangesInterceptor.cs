@@ -129,7 +129,7 @@ public class DataContextSaveChangesInterceptor : SaveChangesInterceptor
                 beforeValues[property.Metadata.Name] = property.OriginalValue;
             }
 
-            if (state != EntityState.Deleted)
+            if (state != EntityState.Deleted || IsSoftDelete(entry))
             {
                 afterValues[property.Metadata.Name] = property.CurrentValue;
             }
@@ -154,7 +154,7 @@ public class DataContextSaveChangesInterceptor : SaveChangesInterceptor
             state == EntityState.Added ? null : GetEntityId(entry),
             entry.Metadata.ClrType.Name,
             state == EntityState.Added ? null : JsonSerializer.Serialize(beforeValues),
-            state == EntityState.Deleted ? null : JsonSerializer.Serialize(afterValues));
+            state == EntityState.Deleted && !IsSoftDelete(entry) ? null : JsonSerializer.Serialize(afterValues));
     }
 
     private static bool IsSoftDelete(EntityEntry entry)

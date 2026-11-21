@@ -38,7 +38,7 @@ public class AuditLogsController : Controller
     public IActionResult List(string type)
     {
         List<AuditLog> logs = _auditLogService.GetAll().Where(p => p.ObjectType == type).ToList();
-        
+
         var items = logs.Select(p => new AuditLogsItemViewModel
         {
             Id = p.Id,
@@ -47,7 +47,31 @@ public class AuditLogsController : Controller
             ObjectType = p.ObjectType,
             ObjectId = p.ObjectId
         });
-        
+
         return View(new AuditLogsListViewModel { Items = items.ToList() });
+    }
+
+    [HttpGet("view/{id:int}")]
+    public IActionResult View(long id)
+    {
+
+            var log = _auditLogService.GetLog(id);
+
+            if (log == null)
+            {
+                TempData["ErrorMessage"] = $"The requested Audit Log with id {id} could not be found.";
+                return RedirectToAction(nameof(List));
+            }
+
+            return View(new ViewAuditLogViewModel
+            {
+                Id = log.Id,
+                Action = log.Action,
+                CreatedAt = log.CreatedAt,
+                ObjectType = log.ObjectType,
+                ObjectId = log.ObjectId,
+                ObjectBeforeJson = log.ObjectBeforeJson,
+                ObjectAfterJson = log.ObjectAfterJson
+            });
     }
 }

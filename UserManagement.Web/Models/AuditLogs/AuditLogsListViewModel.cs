@@ -10,7 +10,7 @@ public class AuditLogsListViewModel
 
 public class AuditLogsItemViewModel
 {
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         public AuditAction Action { get; set; }
 

@@ -35,7 +35,7 @@ public class AuditLogServiceTests
             .Returns(new[] { matchingLog, otherLog }.AsQueryable());
         var service = CreateService();
 
-        var result = service.GetForObject<TestObject>(42);
+        var result = service.GetAllForObject<TestObject>(42);
 
         result.Should().ContainSingle().Which.Should().BeSameAs(matchingLog);
     }
