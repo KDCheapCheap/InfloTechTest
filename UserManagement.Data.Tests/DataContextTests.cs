@@ -146,7 +146,7 @@ public class DataContextTests
             log.ObjectId == user.Id &&
             log.Action == AuditAction.Delete &&
             log.ObjectBeforeJson!.Contains("\"IsDeleted\":false") &&
-            log.ObjectAfterJson == null);
+            log.ObjectAfterJson!.Contains("\"IsDeleted\":true"));
     }
 
     [Fact]
