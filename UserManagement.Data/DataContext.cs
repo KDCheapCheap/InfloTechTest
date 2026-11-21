@@ -1,18 +1,25 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using UserManagement.Data.Entities;
+using UserManagement.Data.Interceptors;
 using UserManagement.Models;
 
 namespace UserManagement.Data;
 
 public class DataContext : DbContext, IDataContext
 {
+    private readonly DataContextSaveChangesInterceptor _auditInterceptor = new();
+
     public DataContext() => Database.EnsureCreated();
 
     protected override void OnConfiguring(DbContextOptionsBuilder options) =>
-        options.UseInMemoryDatabase("UserManagement.Data.DataContext");
+        options
+            .UseInMemoryDatabase("UserManagement.Data.DataContext")
+            .AddInterceptors(_auditInterceptor);
 
-    protected override void OnModelCreating(ModelBuilder model) =>
+    protected override void OnModelCreating(ModelBuilder model)
+    {
         model
             .Entity<User>()
             .HasData(
@@ -25,7 +32,7 @@ public class DataContext : DbContext, IDataContext
                         Surname = "Loew",
                         Email = "ploew@example.com",
                         DateOfBirth = new System.DateTime(1962, 1, 15),
-                        IsActive = true,
+                        IsActive = true
                     },
                     new User
                     {
@@ -120,7 +127,11 @@ public class DataContext : DbContext, IDataContext
                 }
             );
 
+            model.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
+    }
+
     public DbSet<User>? Users { get; set; }
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     public IQueryable<TEntity> GetAll<TEntity>() where TEntity : class
     {

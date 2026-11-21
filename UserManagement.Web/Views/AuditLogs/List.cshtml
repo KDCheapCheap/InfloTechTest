@@ -1,0 +1,56 @@
+@model UserManagement.Web.Models.AuditLogs.AuditLogsListViewModel
+
+<h2>Audit Logs</h2>
+
+<div class="row mb-3">
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Action</th>
+                    <th>Object Type</th>
+                    <th>Object ID</th>
+                    <th>Date Recorded</th>
+                    <th class="user-actions-column">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var log in Model.Items)
+                {
+                    <tr>
+                        <td>@log.Id</td>
+                        <td>
+                            @{
+                                var actionBadgeClass = log.Action switch
+                                {
+                                    UserManagement.Data.Entities.AuditAction.Create => "bg-success",
+                                    UserManagement.Data.Entities.AuditAction.Update => "bg-primary",
+                                    UserManagement.Data.Entities.AuditAction.Delete => "bg-danger",
+                                    _ => "bg-secondary"
+                                };
+                            }
+                            <span class="badge rounded-pill @actionBadgeClass">@log.Action</span>
+                        </td>
+                        <td>@log.ObjectType</td>
+                        <td>@log.ObjectId</td>
+                        <td>@log.CreatedAt</td>
+                        <td class="user-actions-column">
+                            <div class="user-actions">
+                                <a asp-controller="AuditLogs" asp-action="View" asp-route-id="@log.Id"
+                                   class="btn btn-sm btn-outline-secondary" title="View" data-bs-toggle="tooltip">
+                                    <heroicon kind="Outline" name="Eye" class="user-action-icon" />
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@{
+    ViewData["Title"] = "Audit Logs";
+}

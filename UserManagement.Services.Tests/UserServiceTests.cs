@@ -51,7 +51,7 @@ public class UserServiceTests
     }
 
     [Fact]
-    public void DeleteUser_CallsContextDelete()
+    public void DeleteUser_SetsIsDeletedAndCallsContextUpdate()
     {
         // Arrange
         var service = CreateService();
@@ -61,10 +61,11 @@ public class UserServiceTests
         service.DeleteUser(user);
 
         // Assert
-        _dataContext.Verify(s => s.Delete(user));
+        user.IsDeleted.Should().BeTrue();
+        _dataContext.Verify(s => s.Update(user));
     }
 
-    private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true)
+    private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true, bool isDeleted = false)
     {
         var users = new[]
         {
@@ -73,7 +74,8 @@ public class UserServiceTests
                 Forename = forename,
                 Surname = surname,
                 Email = email,
-                IsActive = isActive
+                IsActive = isActive,
+                IsDeleted = isDeleted
             }
         }.AsQueryable();
 

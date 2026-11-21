@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
@@ -19,11 +20,21 @@ public class UserControllerTests
         var result = controller.List();
 
         // Assert: Verifies that the action of the method under test behaves as expected.
+        var expectedItems = users.Select(user => new UserListItemViewModel
+        {
+            Id = user.Id,
+            Forename = user.Forename,
+            Surname = user.Surname,
+            Email = user.Email,
+            DateOfBirth = user.DateOfBirth,
+            IsActive = user.IsActive
+        });
+
         result.Model
             .Should().BeOfType<UserListViewModel>()
-            .Which.Items.Should().BeEquivalentTo(users);
+            .Which.Items.Should().BeEquivalentTo(expectedItems);
     }
-    
+
     [Fact]
     public void List_WhenServiceReturnsUsers_ModelMustContainDateOfBirth()
     {
@@ -77,7 +88,7 @@ public class UserControllerTests
             .Which.Email.Should().Be(inactiveUser.Email);
     }
 
-    
+
     [Fact]
     public void ListByActiveStatus_ReturnsDateOfBirth()
     {
@@ -110,7 +121,8 @@ public class UserControllerTests
     }
 
     [Fact]
-    public void CreateUser_WhenModelIsValid_CreatesUser(){
+    public void CreateUser_WhenModelIsValid_CreatesUser()
+    {
         //Arrange
         var controller = CreateController();
         var newUser = new CreateUserViewModel
@@ -153,7 +165,8 @@ public class UserControllerTests
         Surname = "Fenix",
         Email = "marcus.fenix@gow.example",
         DateOfBirth = new System.DateTime(1984, 11, 7),
-        IsActive = true
+        IsActive = true,
+        IsDeleted = false
     };
 
     private readonly User inactiveUser = new()
@@ -162,7 +175,8 @@ public class UserControllerTests
         Surname = "Santiago",
         Email = "carlos.santiago@gow.example",
         DateOfBirth = new System.DateTime(1984, 10, 28),
-        IsActive = false
+        IsActive = false,
+        IsDeleted = false
     };
 
     private readonly Mock<IUserService> _userService = new();
