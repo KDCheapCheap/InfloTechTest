@@ -1,3 +1,9 @@
+@{
+    var requestPath = Context.Request.Path;
+    var isHomeActive = requestPath == "/" || requestPath.StartsWithSegments("/home", StringComparison.OrdinalIgnoreCase);
+    var isUsersActive = requestPath.StartsWithSegments("/users", StringComparison.OrdinalIgnoreCase);
+    var isAuditLogsActive = requestPath.StartsWithSegments("/audit-logs", StringComparison.OrdinalIgnoreCase);
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,13 +26,13 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark @(isHomeActive ? "active-nav-tab" : "")" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Users" asp-action="List">Users</a>
+                            <a class="nav-link text-dark @(isUsersActive ? "active-nav-tab" : "")" asp-controller="Users" asp-action="List">Users</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="AuditLogs" asp-action="List">Audit Logs</a>
+                            <a class="nav-link text-dark @(isAuditLogsActive ? "active-nav-tab" : "")" asp-controller="AuditLogs" asp-action="List">Audit Logs</a>
                         </li>
                     </ul>
                 </div>
