@@ -9,81 +9,98 @@
         <h2>User List</h2>
     </div>
     <div class="col-3">
-        <a asp-controller="Users" asp-action="Create" class="btn btn-success float-end d-inline-flex align-items-center">
+        <a asp-controller="Users" asp-action="Create"
+           class="btn btn-success float-end d-inline-flex align-items-center">
             <heroicon kind="Outline" name="Plus" class="user-action-icon me-1" /> Add User
         </a>
     </div>
 </div>
-
-<div class="row mb-3">
-
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Forename</th>
-                    <th>Surname</th>
-                    <th>Email</th>
-                    <th>Date of Birth</th>
-                    <th>Account Active</th>
-                    <th class="user-actions-column">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.Items)
-                {
-                    <tr>
-                        <td>@item.Id</td>
-                        <td>@item.Forename</td>
-                        <td>@item.Surname</td>
-                        <td>@item.Email</td>
-                        <td>@item.DateOfBirth.ToString("dd/MM/yyyy")</td>
-                        <td>@(item.IsActive ? "Yes" : "No")</td>
-                        <td class="user-actions-column">
-                            <div class="user-actions">
-                                <a asp-controller="Users" asp-action="View" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="View" data-bs-toggle="tooltip">
-                                    <heroicon kind="Outline" name="Eye" class="user-action-icon" />
-                                </a>
-                                <a asp-controller="Users" asp-action="Edit" asp-route-id="@item.Id" asp-route-returnUrl="List" class="btn btn-sm btn-outline-primary" title="Edit" data-bs-toggle="tooltip">
-                                    <heroicon kind="Outline" name="Pencil" class="user-action-icon" />
-                                </a>
-                                <form asp-controller="Users" asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" data-confirm-delete data-user-name="@item.Forename @item.Surname">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete" data-bs-toggle="tooltip">
-                                        <heroicon kind="Outline" name="Trash" class="user-action-icon" />
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+@if (!Model.Items.Any())
+{
+    <div class="alert alert-info" role="alert">
+        <heroicon kind="Outline" name="InformationCircle" class="me-2 user-action-icon-lg" />
+        No users found.
     </div>
-</div>
+}
+else
+{
+    <div class="row mb-3">
 
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Forename</th>
+                        <th>Surname</th>
+                        <th>Email</th>
+                        <th>Date of Birth</th>
+                        <th>Account Active</th>
+                        <th class="user-actions-column">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>@item.Forename</td>
+                            <td>@item.Surname</td>
+                            <td>@item.Email</td>
+                            <td>@item.DateOfBirth.ToString("dd/MM/yyyy")</td>
+                            <td>@(item.IsActive ? "Yes" : "No")</td>
+                            <td class="user-actions-column">
+                                <div class="user-actions">
+                                    <a asp-controller="Users" asp-action="View" asp-route-id="@item.Id"
+                                       class="btn btn-sm btn-outline-secondary" title="View" data-bs-toggle="tooltip">
+                                        <heroicon kind="Outline" name="Eye" class="user-action-icon" />
+                                    </a>
+                                    <a asp-controller="Users" asp-action="Edit" asp-route-id="@item.Id"
+                                       asp-route-returnUrl="List" class="btn btn-sm btn-outline-primary" title="Edit"
+                                       data-bs-toggle="tooltip">
+                                        <heroicon kind="Outline" name="Pencil" class="user-action-icon" />
+                                    </a>
+                                    <form asp-controller="Users" asp-action="Delete" asp-route-id="@item.Id" method="post"
+                                          class="d-inline" data-confirm-delete data-user-name="@item.Forename @item.Surname">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"
+                                                data-bs-toggle="tooltip">
+                                            <heroicon kind="Outline" name="Trash" class="user-action-icon" />
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
 <div>
     @{
         var hasStatusFilter = bool.TryParse(
             ViewContext.RouteData.Values["isActive"]?.ToString(), out var activeFilter);
     }
-     <div class="btn-group">
-        <a asp-controller="Users" asp-action="List" class="btn @(!hasStatusFilter ? "btn-primary" : "btn-outline-primary")">Show All</a>
-        <a asp-controller="Users" asp-action="ListByActiveStatus" asp-route-isActive="true" class="btn @(hasStatusFilter && activeFilter ? "btn-primary" : "btn-outline-primary")">Active Only</a>
-        <a asp-controller="Users" asp-action="ListByActiveStatus" asp-route-isActive="false" class="btn @(hasStatusFilter && !activeFilter ? "btn-primary" : "btn-outline-primary")">Non Active</a>
+    <div class="btn-group">
+        <a asp-controller="Users" asp-action="List"
+           class="btn @(!hasStatusFilter ? "btn-primary" : "btn-outline-primary")">Show All</a>
+        <a asp-controller="Users" asp-action="ListByActiveStatus" asp-route-isActive="true"
+           class="btn @(hasStatusFilter && activeFilter ? "btn-primary" : "btn-outline-primary")">Active Only</a>
+        <a asp-controller="Users" asp-action="ListByActiveStatus" asp-route-isActive="false"
+           class="btn @(hasStatusFilter && !activeFilter ? "btn-primary" : "btn-outline-primary")">Non Active</a>
     </div>
 </div>
 
 <partial name="_DeleteUserModal" />
 
-    @{
-        ViewData["Title"] = "User List";
-    }
+@{
+    ViewData["Title"] = "User List";
+}
 
-    @section Scripts {
-        <script>
-            setTimeout(() => {
-                document.getElementById("usersListErrorMessage")?.remove();
-            }, 5000);
-        </script>
-    }
+@section Scripts {
+    <script>
+        setTimeout(() => {
+            document.getElementById("usersListErrorMessage")?.remove();
+        }, 5000);
+    </script>
+}

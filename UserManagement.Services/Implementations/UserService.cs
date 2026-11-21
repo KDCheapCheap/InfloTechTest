@@ -25,7 +25,9 @@ public class UserService : IUserService
 
     public void DeleteUser(User user)
     {
-        _dataAccess.Delete(user);
+        user.IsDeleted = true;
+
+        _dataAccess.Update(user);
     }
 
     public IEnumerable<User> FilterByActive(bool isActive)

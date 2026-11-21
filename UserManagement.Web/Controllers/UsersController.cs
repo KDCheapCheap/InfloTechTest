@@ -1,6 +1,8 @@
 ﻿using System.Linq;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
+using UserManagement.Services.Interfaces;
+using UserManagement.Web.Models.AuditLogs;
 using UserManagement.Web.Models.Users;
 
 namespace UserManagement.WebMS.Controllers;
@@ -9,8 +11,9 @@ namespace UserManagement.WebMS.Controllers;
 public class UsersController : Controller
 {
     private readonly IUserService _userService;
+    private readonly IAuditLogService _auditLogService;
 
-    public UsersController(IUserService userService) => _userService = userService;
+    public UsersController(IUserService userService, IAuditLogService auditLogService) => (_userService, _auditLogService) = (userService, auditLogService);
 
     [HttpGet]
     public ViewResult List()
@@ -148,6 +151,19 @@ public class UsersController : Controller
             return RedirectToAction(nameof(List));
         }
 
+        var auditLogs = _auditLogService.GetAllForObject<User>(user.Id);
+
+        var auditLogsModel = auditLogs.Select(al => new AuditLogsItemViewModel()
+        {
+            Id = al.Id,
+            Action = al.Action,
+            CreatedAt = al.CreatedAt,
+            ObjectType = al.ObjectType,
+            ObjectId = al.ObjectId
+        });
+
+        var auditLogsList = new AuditLogsListViewModel { Items = auditLogsModel.ToList() };
+
         var model = new ViewUserViewModel
         {
             Id = user.Id,
@@ -155,7 +171,8 @@ public class UsersController : Controller
             Surname = user.Surname,
             Email = user.Email,
             DateOfBirth = user.DateOfBirth,
-            IsActive = user.IsActive
+            IsActive = user.IsActive,
+            AuditLogs = auditLogsList
         };
 
         return View(model);

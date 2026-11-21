@@ -3,16 +3,18 @@
     ViewData["Title"] = @Model.Forename + " " + @Model.Surname;
 }
 <div class="container">
-    <div>
+    <div class="row">
         <div class="row align-items-center mb-3">
             <div class="col-12 col-sm-8">
                 <h1>User Details</h1>
             </div>
             <div class="col-12 col-sm-4 d-flex justify-content-start justify-content-sm-end gap-2 mt-2 mt-sm-0">
-                <a asp-controller="Users" asp-action="Edit" asp-route-id="@Model.Id" asp-route-returnUrl="View" class="btn btn-sm btn-outline-primary">
+                <a asp-controller="Users" asp-action="Edit" asp-route-id="@Model.Id" asp-route-returnUrl="View"
+                   class="btn btn-sm btn-outline-primary">
                     <heroicon kind="Outline" name="Pencil" class="user-action-icon me-1" />Edit
                 </a>
-                <form asp-controller="Users" asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-inline" data-confirm-delete data-user-name="@Model.Forename @Model.Surname">
+                <form asp-controller="Users" asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-inline"
+                      data-confirm-delete data-user-name="@Model.Forename @Model.Surname">
                     <button type="submit" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center">
                         <heroicon kind="Outline" name="Trash" class="user-action-icon me-1" />Delete
                     </button>
@@ -42,9 +44,55 @@
             <dt class="col-2">Active</dt>
             <dd class="col-10">@Model.IsActive</dd>
         </dl>
-
-        <a asp-controller="Users" asp-action="List" class="btn btn-sm btn-secondary d-inline-flex align-items-center">
-            <heroicon kind="Outline" name="ArrowLeft" class="user-action-icon me-1" />Back to list
-        </a>
     </div>
+    @if (Model.AuditLogs.Items.Any())
+    {
+        <div class="row mt-3">
+            <h2>Audit Logs</h2>
+        </div>
 
+        <div class="row mb-3">
+
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Action</th>
+                            <th>Object Type</th>
+                            <th>Object ID</th>
+                            <th>Date Recorded</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in Model.AuditLogs.Items)
+                        {
+                            <tr>
+                                <td>@log.Id</td>
+                                <td>
+                                    @{
+                                        var actionBadgeClass = log.Action switch
+                                        {
+                                            UserManagement.Data.Entities.AuditAction.Create => "bg-success",
+                                            UserManagement.Data.Entities.AuditAction.Update => "bg-primary",
+                                            UserManagement.Data.Entities.AuditAction.Delete => "bg-danger",
+                                            _ => "bg-secondary"
+                                        };
+                                    }
+                                    <span class="badge rounded-pill @actionBadgeClass">@log.Action</span>
+                                </td>
+                                <td>@log.ObjectType</td>
+                                <td>@log.ObjectId</td>
+                                <td>@log.CreatedAt</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <hr />
+    }
+    <a asp-controller="Users" asp-action="List" class="btn btn-sm btn-secondary d-inline-flex align-items-center">
+        <heroicon kind="Outline" name="ArrowLeft" class="user-action-icon me-1" />Back to list
+    </a>
+</div>

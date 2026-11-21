@@ -1,4 +1,5 @@
 using System;
+using UserManagement.Web.Models.AuditLogs;
 
 namespace UserManagement.Web.Models.Users;
 
@@ -15,4 +16,6 @@ public class ViewUserViewModel
     public DateTime DateOfBirth { get; set; }
 
     public bool IsActive { get; set; }
+
+    public AuditLogsListViewModel AuditLogs { get; set; } = new();
 }
