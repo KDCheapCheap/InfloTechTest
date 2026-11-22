@@ -13,17 +13,27 @@ From this folder, run `start-db.bat`. The script:
 3. If Compose succeeds, runs `mysqladmin ping` inside `local-mysql` with the configured root password. It repeats this check every two seconds until MySQL responds. There is no timeout, so the script keeps waiting if the container never becomes ready. Press `Ctrl+C` to stop waiting.
 4. Prints the connection settings below and pauses for a keypress before closing.
 
-The script does not create application tables or run Entity Framework migrations. It only starts the database and waits for MySQL to accept its readiness check. The first time MySQL initializes the empty data volume, the Compose environment settings create the `myapp` database and `myappuser` account.
+The script does not create application tables or run Entity Framework migrations. It only starts the database and waits for MySQL to accept its readiness check. When MySQL initializes an empty `mysql-data` volume for the first time, Compose creates the `KD_InfloTechTest` database and sets the `root` password. No separate application account is created. The environment settings do not reset credentials or databases in an already initialized volume.
 
-Connect using:
+Connect from the host machine using:
 
 | Setting | Value |
 | --- | --- |
 | Host | `localhost` |
 | Port | `3306` |
-| Database | `myapp` |
-| Username | `myappuser` |
-| Password | `myapppassword` |
+| Database | `KD_InfloTechTest` |
+| Username | `root` |
+| Password | `rootpassword` |
+
+## Apply the Database Schema
+
+After starting MySQL, open a terminal in `UserManagement.Web` and run:
+
+```bat
+dotnet ef database update
+```
+
+This applies the Entity Framework Core migrations and creates the application tables. The start script itself does not apply migrations.
 
 ## Stop and Keep Data
 

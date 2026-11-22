@@ -30,9 +30,9 @@ echo MySQL is ready.
 echo.
 echo Host: localhost
 echo Port: 3306
-echo Database: myapp
-echo Username: myappuser
-echo Password: myapppassword
+echo Database: KD_InfloTechTest
+echo Username: root
+echo Password: rootpassword
 echo.
 
 pause
