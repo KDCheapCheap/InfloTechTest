@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading.Tasks;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Implementations;
 
@@ -7,62 +8,62 @@ namespace UserManagement.Data.Tests;
 public class UserServiceTests
 {
     [Fact]
-    public void GetAll_WhenContextReturnsEntities_MustReturnSameEntities()
+    public async Task GetAll_WhenContextReturnsEntities_MustReturnSameEntities()
     {
         // Arrange: Initializes objects and sets the value of the data that is passed to the method under test.
         var service = CreateService();
         var users = SetupUsers();
 
         // Act: Invokes the method under test with the arranged parameters.
-        var result = service.GetAll();
+        var result = await service.GetAll();
 
         // Assert: Verifies that the action of the method under test behaves as expected.
         result.Should().BeSameAs(users);
     }
 
     [Fact]
-    public void GetById_WhenContextReturnsEntity_MustReturnSameEntity()
+    public async Task GetById_WhenContextReturnsEntity_MustReturnSameEntity()
     {
         // Arrange
         var service = CreateService();
         var user = SetupUsers().First();
 
-        _dataContext.Setup(s => s.Get<User>(user.Id)).Returns(user);
+        _dataContext.Setup(s => s.GetAsync<User>(user.Id)).ReturnsAsync(user);
 
         // Act
-        var result = service.GetById(user.Id);
+        var result = await service.GetById(user.Id);
 
         // Assert
         result.Should().BeSameAs(user);
     }
 
     [Fact]
-    public void GetById_WhenContextReturnsNull_MustReturnNull()
+    public async Task GetById_WhenContextReturnsNull_MustReturnNull()
     {
         // Arrange
         var service = CreateService();
 
-        _dataContext.Setup(s => s.Get<User>(It.IsAny<int>())).Returns((User)null!);
+        _dataContext.Setup(s => s.GetAsync<User>(It.IsAny<long>())).ReturnsAsync((User)null!);
         // Act
-        var result = service.GetById(1);
+        var result = await service.GetById(1);
 
         // Assert
         result.Should().BeNull();
     }
 
     [Fact]
-    public void DeleteUser_SetsIsDeletedAndCallsContextUpdate()
+    public async Task DeleteUser_SetsIsDeletedAndCallsContextUpdate()
     {
         // Arrange
         var service = CreateService();
         var user = SetupUsers().First();
 
         // Act
-        service.DeleteUser(user);
+        await service.DeleteUser(user);
 
         // Assert
         user.IsDeleted.Should().BeTrue();
-        _dataContext.Verify(s => s.Update(user));
+        _dataContext.Verify(s => s.UpdateAsync(user));
     }
 
     private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true, bool isDeleted = false)
@@ -80,8 +81,8 @@ public class UserServiceTests
         }.AsQueryable();
 
         _dataContext
-            .Setup(s => s.GetAll<User>())
-            .Returns(users);
+            .Setup(s => s.GetAllAsync<User>())
+            .ReturnsAsync(users);
 
         return users;
     }

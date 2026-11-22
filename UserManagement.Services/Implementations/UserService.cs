@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UserManagement.Data;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
@@ -12,39 +13,40 @@ public class UserService : IUserService
 
     public UserService(IDataContext dataAccess) => _dataAccess = dataAccess;
 
-    public void CreateUser(User user)
+    public async Task CreateUser(User user)
     {
-        _dataAccess.Create(user);
+        await _dataAccess.CreateAsync(user);
     }
 
 
-    public void EditUser(User user) 
+    public async Task EditUser(User user) 
     {
-        _dataAccess.Update(user);
+        await _dataAccess.UpdateAsync(user);
     }
 
-    public void DeleteUser(User user)
+    public async Task DeleteUser(User user)
     {
         user.IsDeleted = true;
 
-        _dataAccess.Update(user);
+        await _dataAccess.UpdateAsync(user);
     }
 
-    public IEnumerable<User> FilterByActive(bool isActive)
+    public async Task<IEnumerable<User>> FilterByActive(bool isActive)
     {
-        return _dataAccess.GetAll<User>().Where(u => u.IsActive == isActive);
+        var allUsers = await _dataAccess.GetAllAsync<User>();
+        return allUsers.Where(u => u.IsActive == isActive);
     }
 
-    public IEnumerable<User> GetAll()
+    public async Task<IEnumerable<User>> GetAll()
     {
-        return _dataAccess.GetAll<User>();
+        return await _dataAccess.GetAllAsync<User>();
     }
 
-    public User GetById(long id)
+    public async Task<User> GetById(long id)
     {
         try
         {
-            var user = _dataAccess.Get<User>(id);
+            var user = await _dataAccess.GetAsync<User>(id);
             return user;
         }
         catch
