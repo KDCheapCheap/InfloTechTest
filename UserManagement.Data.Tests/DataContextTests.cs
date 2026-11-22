@@ -36,7 +36,8 @@ public class DataContextTests
     {
         // Arrange: Initializes objects and sets the value of the data that is passed to the method under test.
         var context = CreateContext();
-        var entity = context.GetAll<User>().First();
+        var entity = CreateUser();
+        context.Create(entity);
         context.Delete(entity);
 
         // Act: Invokes the method under test with the arranged parameters.
@@ -85,7 +86,8 @@ public class DataContextTests
     public void Get_WhenEntityExists_MustReturnEntity()
     {
         var context = CreateContext();
-        var entity = context.GetAll<User>().First();
+        var entity = CreateUser();
+        context.Create(entity);
         context.Get<User>(entity.Id).Should().BeSameAs(entity);
     }
 
@@ -154,7 +156,8 @@ public class DataContextTests
     public void Delete_WhenEntityDeleted_MustNotIncludeIt()
     {
         var context = CreateContext();
-        var entity = context.GetAll<User>().First();
+        var entity = CreateUser();
+        context.Create(entity);
         context.Delete(entity);
         context.GetAll<User>().Should().NotContain(s => s.Email == entity.Email);
     }
