@@ -5,6 +5,30 @@ We recommend that you use [Visual Studio (Community Edition)](https://visualstud
 
 **The application uses MySQL by default.** Its local connection is configured in `UserManagement.Web/appsettings.json`; database files persist in the Docker volume between application runs.
 
+In the task list below, I have removed anything I have not completed.
+
+## Getting Started
+1. Clone the repository
+2. Start the database
+
+    If you have a MySQL database already, change the connection string in `appsettings.json` to what is required for your server then you will need to create a new database called "KD_InfloTechTest". Migrations will not create the database.
+
+    If you do not, I have supplied a Docker startup script that creates a MySQL server and the database running in a Docker container.
+    
+    Steps to run:
+    * Navigate to `/Supporting Files/mysql`
+    * Run `start-db.bat`
+    * This creates the container, downloads the mysql image and creates a volume that stores the data 
+
+3. Restore dependencies and build
+4. Apply database migrations
+Open a terminal in `UserManagement.Web` and run `dotnet ef database update` to run migrations.
+5. Run the application
+
+## Once Finished
+### Remove Docker MySQL
+In the Docker MySQL set up I supplied, you can run `teardown-db.bat` to remove everything that was created. This will only delete what was made and won't affect any other containers.
+
 ## Packages / Libraries
 ### Heroicons.AspNetCore - Web
 *[Package Link](https://www.nuget.org/packages/Heroicons.AspNetCore.Mvc.TagHelpers/)*
@@ -24,7 +48,9 @@ This package is required for EF Core migrations due to them running at design ti
 ### Local MySQL Server Docker Scripts
 *Found in `Supporting Files/mysql`*
 
-The local database runs in a Docker container built from the MySQL 8.4 image. Run `start-db.bat` from `Supporting Files/mysql` to start it; `teardown-db.bat` is also provided to remove the container and, if requested, its data volume. See [the MySQL README](Supporting%20Files/mysql/README.md) for the connection settings and database setup steps.
+The local database runs in a Docker container built from the MySQL 8.4 image. Run `start-db.bat` from `Supporting Files/mysql` to start it; `teardown-db.bat` is also provided to remove the container and, if requested, its data volume. See [the MySQL README](Supporting%20Files/mysql/README.md) for the connection settings and database setup steps. 
+
+Once the database is created, run `dotnet ef database update` from the Web project to create the tables
 
 When connecting a local MySQL client, you may encounter `Public Key Retrieval is not allowed`. For this local development connection, set the client's `allowPublicKeyRetrieval` option to `true`. Do not use this workaround for untrusted remote connections; configure TLS instead.
 
@@ -38,17 +64,17 @@ Complete as many of the tasks below as you feel comfortable with. These are spli
 * **Expert** - Tasks with a higher level of problem solving and architecture needed
 * **Platform** - Tasks with a focus on infrastructure and scaleability, rather than application development.
 
-### 1. Filters Section (Standard) - COMPLETED
+### 1. Filters Section (Standard)
 
 The users page contains 3 buttons below the user listing - **Show All**, **Active Only** and **Non Active**. Show All has already been implemented. Implement the remaining buttons using the following logic:
 * Active Only – This should show only users where their `IsActive` property is set to `true`
 * Non Active – This should show only users where their `IsActive` property is set to `false`
 
-### 2. User Model Properties (Standard) - COMPLETED
+### 2. User Model Properties (Standard)
 
 Add a new property to the `User` class in the system called `DateOfBirth` which is to be used and displayed in relevant sections of the app.
 
-### 3. Actions Section (Standard) - COMPLETED
+### 3. Actions Section (Standard)
 
 Create the code and UI flows for the following actions
 * **Add** – A screen that allows you to create a new user and return to the list
@@ -58,7 +84,7 @@ Create the code and UI flows for the following actions
 
 Each of these screens should contain appropriate data validation, which is communicated to the end user.
 
-### 4. Data Logging (Advanced) - COMPLETED
+### 4. Data Logging (Advanced)
 
 Extend the system to capture log information regarding primary actions performed on each user in the app.
 * In the **View** screen there should be a list of all actions that have been performed against that user. 
@@ -66,7 +92,7 @@ Extend the system to capture log information regarding primary actions performed
 * In the Logs page, the user should be able to click into each entry to see more detail about it.
 * In the Logs page, think about how you can provide a good user experience - even when there are many log entries.
 
-### 5. Extend the Application (Expert) - PARTLY COMPLETED (See bold)
+### 5. Extend the Application (Expert)
 
 Make a significant architectural change that improves the application.
 Structurally, the user management application is very simple, and there are many ways it can be made more maintainable, scalable or testable.
