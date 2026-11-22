@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using UserManagement.Data.Entities;
 using UserManagement.Models;
 
@@ -166,5 +167,12 @@ public class DataContextTests
         IsDeleted = isDeleted
     };
 
-    private DataContext CreateContext() => new();
+    private DataContext CreateContext()
+    {
+        var options = new DbContextOptionsBuilder<DataContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        return new DataContext(options);
+    }
 }

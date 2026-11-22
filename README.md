@@ -6,10 +6,28 @@ We recommend that you use [Visual Studio (Community Edition)](https://visualstud
 **The application uses an in-memory database, so changes will not be persisted between executions.**
 
 ## Packages / Libraries
-### Heroicons.AspNetCore
+### Heroicons.AspNetCore - Web
 *[Package Link](https://www.nuget.org/packages/Heroicons.AspNetCore.Mvc.TagHelpers/)*
 
 I added this to improve the look of the frontend a little. This package allows easy usage of [Heroicons](https://heroicons.com/) in an MVC application.
+
+### Pomelo.EntityFrameworkCore.MySql - Web
+*[Package Link](https://www.nuget.org/packages/pomelo.entityFrameworkcore.mysql)*
+
+My local database uses MySql, this package adds MySql functionality to Entity Framework Core using the setup you can see in `Program,cs`. My implementation of this is simply from the nuget page linked above.
+
+### Microsoft.EntityFrameworkCore.Design - Web
+*[Package Link](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Design)*
+
+This package is required for EF Core migrations due to them running at design time.
+
+### Local MySql Server Docker Scripts
+*Found in Supporting Files/MySql*
+
+The database connection I used is a localhost setup that I have on my machine running out of a Docker container. When I created this for previous projects I made it with a quick to run .bat file that runs `docker compose` which downloads the mysql image then creates the container and volume. There is also a teardown .bat file included so you can easily remove the infrastructure afterwards. Please see the readme in the folder for full details
+
+**Requirements**
+Docker Desktop and it's dependencies are required to be installed for this to be used.
 
 ## The Exercise
 Complete as many of the tasks below as you feel comfortable with. These are split into 4 levels of difficulty 

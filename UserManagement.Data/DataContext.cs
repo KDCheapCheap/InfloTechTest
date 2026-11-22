@@ -11,12 +11,10 @@ public class DataContext : DbContext, IDataContext
 {
     private readonly DataContextSaveChangesInterceptor _auditInterceptor = new();
 
-    public DataContext() => Database.EnsureCreated();
+    public DataContext(DbContextOptions<DataContext> options) : base(options){}
 
     protected override void OnConfiguring(DbContextOptionsBuilder options) =>
-        options
-            .UseInMemoryDatabase("UserManagement.Data.DataContext")
-            .AddInterceptors(_auditInterceptor);
+        options.AddInterceptors(_auditInterceptor);
 
     protected override void OnModelCreating(ModelBuilder model)
     {
