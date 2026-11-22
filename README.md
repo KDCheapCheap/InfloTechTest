@@ -3,13 +3,33 @@
 The exercise is an ASP.NET Core web application backed by Entity Framework Core, which faciliates management of some fictional users.
 We recommend that you use [Visual Studio (Community Edition)](https://visualstudio.microsoft.com/downloads) or [Visual Studio Code](https://code.visualstudio.com/Download) to run and modify the application. 
 
-**The application uses an in-memory database, so changes will not be persisted between executions.**
+**The application uses MySQL by default.** Its local connection is configured in `UserManagement.Web/appsettings.json`; database files persist in the Docker volume between application runs.
 
 ## Packages / Libraries
-### Heroicons.AspNetCore
+### Heroicons.AspNetCore - Web
 *[Package Link](https://www.nuget.org/packages/Heroicons.AspNetCore.Mvc.TagHelpers/)*
 
 I added this to improve the look of the frontend a little. This package allows easy usage of [Heroicons](https://heroicons.com/) in an MVC application.
+
+### Pomelo.EntityFrameworkCore.MySql - Web
+*[Package Link](https://www.nuget.org/packages/pomelo.entityFrameworkcore.mysql)*
+
+My local database uses MySql, this package adds MySql functionality to Entity Framework Core using the setup you can see in `Program,cs`. My implementation of this is simply from the nuget page linked above.
+
+### Microsoft.EntityFrameworkCore.Design - Web
+*[Package Link](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Design)*
+
+This package is required for EF Core migrations due to them running at design time.
+
+### Local MySQL Server Docker Scripts
+*Found in `Supporting Files/mysql`*
+
+The local database runs in a Docker container built from the MySQL 8.4 image. Run `start-db.bat` from `Supporting Files/mysql` to start it; `teardown-db.bat` is also provided to remove the container and, if requested, its data volume. See [the MySQL README](Supporting%20Files/mysql/README.md) for the connection settings and database setup steps.
+
+When connecting a local MySQL client, you may encounter `Public Key Retrieval is not allowed`. For this local development connection, set the client's `allowPublicKeyRetrieval` option to `true`. Do not use this workaround for untrusted remote connections; configure TLS instead.
+
+**Requirements**
+Docker Desktop and Docker Compose are required.
 
 ## The Exercise
 Complete as many of the tasks below as you feel comfortable with. These are split into 4 levels of difficulty 
