@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using UserManagement.Data;
 using UserManagement.Data.Entities;
 using UserManagement.Services.Interfaces;
@@ -13,23 +14,25 @@ public class AuditLogService : IAuditLogService
 
     public AuditLogService(IDataContext dataContext) => _dataContext = dataContext;
 
-    public void CreateLog<T>(AuditAction action, long objectId, T? objectBefore, T? objectAfter)
+    public async Task CreateLog<T>(AuditAction action, long objectId, T? objectBefore, T? objectAfter)
     {
-        _dataContext.Create(new AuditLog
+        await Task.Run(() => _dataContext.CreateAsync(new AuditLog
         {
             Action = action,
             ObjectType = typeof(T).Name,
             ObjectId = objectId,
             ObjectBeforeJson = objectBefore is null ? null : JsonSerializer.Serialize(objectBefore),
             ObjectAfterJson = objectAfter is null ? null : JsonSerializer.Serialize(objectAfter)
-        });
+        }));
+
+        await Task.CompletedTask;
     }
 
-    public AuditLog GetLog(long id)
+    public async Task<AuditLog> GetLog(long id)
     {
         try
         {
-            var log = _dataContext.Get<AuditLog>(id);
+            var log = await _dataContext.GetAsync<AuditLog>(id);
             return log;
         }
         catch
@@ -38,18 +41,20 @@ public class AuditLogService : IAuditLogService
         }
     }
 
-    public IEnumerable<AuditLog> GetAll()
+    public async Task<IEnumerable<AuditLog>> GetAll()
     {
-        return _dataContext.GetAll<AuditLog>();
+        return await _dataContext.GetAllAsync<AuditLog>();
     }
 
-    public IEnumerable<AuditLog> GetAllForType<T>()
+    public async Task<IEnumerable<AuditLog>> GetAllForType<T>()
     {
-        return _dataContext.GetAll<AuditLog>().Where(log => log.ObjectType == typeof(T).Name);
+        var allLogs = await _dataContext.GetAllAsync<AuditLog>();
+        return allLogs.Where(log => log.ObjectType == typeof(T).Name);
     }
 
-    public IEnumerable<AuditLog> GetAllForObject<T>(long objectId)
+    public async Task<IEnumerable<AuditLog>> GetAllForObject<T>(long objectId)
     {
-        return _dataContext.GetAll<AuditLog>().Where(log => log.ObjectType == typeof(T).Name && log.ObjectId == objectId);
+        var allLogs = await _dataContext.GetAllAsync<AuditLog>();
+        return allLogs.Where(log => log.ObjectType == typeof(T).Name && log.ObjectId == objectId);
     }
 }

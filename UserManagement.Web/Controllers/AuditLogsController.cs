@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading.Tasks;
 using UserManagement.Data.Entities;
 using UserManagement.Services.Interfaces;
 using UserManagement.Web.Models.AuditLogs;
@@ -16,9 +17,9 @@ public class AuditLogsController : Controller
     }
 
     [HttpGet]
-    public IActionResult List()
+    public async Task<IActionResult> List()
     {
-        List<AuditLog> logs = _auditLogService.GetAll().ToList();
+        List<AuditLog> logs = (await _auditLogService.GetAll()).ToList();
 
         var items = logs.Select(p => new AuditLogsItemViewModel
         {
@@ -35,9 +36,9 @@ public class AuditLogsController : Controller
     }
 
     [HttpGet("list/{type}")]
-    public IActionResult List(string type)
+    public async Task<IActionResult> List(string type)
     {
-        List<AuditLog> logs = _auditLogService.GetAll().Where(p => p.ObjectType == type).ToList();
+        List<AuditLog> logs = (await _auditLogService.GetAll()).Where(p => p.ObjectType == type).ToList();
 
         var items = logs.Select(p => new AuditLogsItemViewModel
         {
@@ -52,26 +53,25 @@ public class AuditLogsController : Controller
     }
 
     [HttpGet("view/{id:int}")]
-    public IActionResult View(long id)
+    public async Task<IActionResult> View(long id)
     {
+        var log = await _auditLogService.GetLog(id);
 
-            var log = _auditLogService.GetLog(id);
+        if (log == null)
+        {
+            TempData["ErrorMessage"] = $"The requested Audit Log with id {id} could not be found.";
+            return RedirectToAction(nameof(List));
+        }
 
-            if (log == null)
-            {
-                TempData["ErrorMessage"] = $"The requested Audit Log with id {id} could not be found.";
-                return RedirectToAction(nameof(List));
-            }
-
-            return View(new ViewAuditLogViewModel
-            {
-                Id = log.Id,
-                Action = log.Action,
-                CreatedAt = log.CreatedAt,
-                ObjectType = log.ObjectType,
-                ObjectId = log.ObjectId,
-                ObjectBeforeJson = log.ObjectBeforeJson,
-                ObjectAfterJson = log.ObjectAfterJson
-            });
+        return View(new ViewAuditLogViewModel
+        {
+            Id = log.Id,
+            Action = log.Action,
+            CreatedAt = log.CreatedAt,
+            ObjectType = log.ObjectType,
+            ObjectId = log.ObjectId,
+            ObjectBeforeJson = log.ObjectBeforeJson,
+            ObjectAfterJson = log.ObjectAfterJson
+        });
     }
 }

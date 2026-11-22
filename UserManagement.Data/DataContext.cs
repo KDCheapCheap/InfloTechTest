@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using UserManagement.Data.Entities;
 using UserManagement.Data.Interceptors;
@@ -136,9 +137,26 @@ public class DataContext : DbContext, IDataContext
         return base.Set<TEntity>();
     }
 
+    public async Task<IQueryable<TEntity>> GetAllAsync<TEntity>() where TEntity : class
+    {
+        return await Task.FromResult(base.Set<TEntity>());
+    }
+
     public TEntity Get<TEntity>(long id) where TEntity : class
     {
         var entity = Set<TEntity>().Find(id);
+
+        if (entity == null)
+        {
+            throw new Exception("Cannot find Entity for ID: " + id);
+        }
+
+        return entity;
+    }
+
+    public async Task<TEntity> GetAsync<TEntity>(long id) where TEntity : class
+    {
+        var entity = await Set<TEntity>().FindAsync(id);
 
         if (entity == null)
         {
@@ -154,15 +172,33 @@ public class DataContext : DbContext, IDataContext
         SaveChanges();
     }
 
+    public async Task CreateAsync<TEntity>(TEntity entity) where TEntity : class
+    {
+        await base.AddAsync(entity);
+        await SaveChangesAsync();
+    }
+
     public new void Update<TEntity>(TEntity entity) where TEntity : class
     {
         base.Update(entity);
         SaveChanges();
     }
 
+    public async Task UpdateAsync<TEntity>(TEntity entity) where TEntity : class
+    {
+        base.Update(entity);
+        await SaveChangesAsync();
+    }
+
     public void Delete<TEntity>(TEntity entity) where TEntity : class
     {
         base.Remove(entity);
         SaveChanges();
+    }
+
+    public async Task DeleteAsync<TEntity>(TEntity entity) where TEntity : class
+    {
+        base.Remove(entity);
+        await SaveChangesAsync();
     }
 }

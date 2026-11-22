@@ -1,4 +1,6 @@
 using System.Linq;
+using System.Threading.Tasks;
+using UserManagement.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
@@ -11,14 +13,14 @@ namespace UserManagement.Data.Tests;
 public class UserControllerTests
 {
     [Fact]
-    public void List_WhenServiceReturnsUsers_ModelMustContainUsers()
+    public async Task List_WhenServiceReturnsUsers_ModelMustContainUsers()
     {
         // Arrange: Initializes objects and sets the value of the data that is passed to the method under test.
         var controller = CreateController();
         var users = SetupUsers(activeUser);
 
         // Act: Invokes the method under test with the arranged parameters.
-        var result = controller.List();
+        var result = await controller.List();
 
         // Assert: Verifies that the action of the method under test behaves as expected.
         var expectedItems = users.Select(user => new UserListItemViewModel
@@ -37,14 +39,14 @@ public class UserControllerTests
     }
 
     [Fact]
-    public void List_WhenServiceReturnsUsers_ModelMustContainDateOfBirth()
+    public async Task List_WhenServiceReturnsUsers_ModelMustContainDateOfBirth()
     {
         // Arrange: Initializes objects and sets the value of the data that is passed to the method under test.
         var controller = CreateController();
         SetupUsers(activeUser);
 
         // Act: Invokes the method under test with the arranged parameters.
-        var result = controller.List();
+        var result = await controller.List();
 
         // Assert: Verifies that the action of the method under test behaves as expected.
         result.Model
@@ -54,16 +56,16 @@ public class UserControllerTests
     }
 
     [Fact]
-    public void ListByActiveStatus_WhenIsActiveTrue_ReturnsOnlyActiveUsers()
+    public async Task ListByActiveStatus_WhenIsActiveTrue_ReturnsOnlyActiveUsers()
     {
         //Arrange
         var controller = CreateController();
-        _userService.Setup(service => service.FilterByActive(true)).Returns(new[] { activeUser });
+        _userService.Setup(service => service.FilterByActive(true)).ReturnsAsync(new[] { activeUser });
 
         var users = SetupUsers(activeUser, inactiveUser);
 
         //Act
-        var result = controller.ListByActiveStatus(isActive: true);
+        var result = await controller.ListByActiveStatus(isActive: true);
 
         //Assert
         result.Model.Should().BeOfType<UserListViewModel>()
@@ -72,16 +74,16 @@ public class UserControllerTests
     }
 
     [Fact]
-    public void ListByActiveStatus_WhenIsActiveFalse_ReturnsOnlyInactiveUsers()
+    public async Task ListByActiveStatus_WhenIsActiveFalse_ReturnsOnlyInactiveUsers()
     {
         //Arrange
         var controller = CreateController();
-        _userService.Setup(service => service.FilterByActive(false)).Returns(new[] { inactiveUser });
+        _userService.Setup(service => service.FilterByActive(false)).ReturnsAsync(new[] { inactiveUser });
 
         var users = SetupUsers(activeUser, inactiveUser);
 
         //Act
-        var result = controller.ListByActiveStatus(isActive: false);
+        var result = await controller.ListByActiveStatus(isActive: false);
 
         //Assert
         result.Model.Should().BeOfType<UserListViewModel>()
@@ -91,16 +93,16 @@ public class UserControllerTests
 
 
     [Fact]
-    public void ListByActiveStatus_ReturnsDateOfBirth()
+    public async Task ListByActiveStatus_ReturnsDateOfBirth()
     {
         //Arrange
         var controller = CreateController();
-        _userService.Setup(service => service.FilterByActive(false)).Returns(new[] { inactiveUser });
+        _userService.Setup(service => service.FilterByActive(false)).ReturnsAsync(new[] { inactiveUser });
 
         var users = SetupUsers(activeUser, inactiveUser);
 
         //Act
-        var result = controller.ListByActiveStatus(isActive: false);
+        var result = await controller.ListByActiveStatus(isActive: false);
 
         //Assert
         result.Model.Should().BeOfType<UserListViewModel>()
@@ -109,20 +111,22 @@ public class UserControllerTests
     }
 
     [Fact]
-    public void View_WhenUserExists_ReturnsView()
+    public async Task View_WhenUserExists_ReturnsView()
     {
         const long userId = 42;
         var user = new User { Id = userId };
-        _userService.Setup(service => service.GetById(userId)).Returns(user);
+        _userService.Setup(service => service.GetById(userId)).ReturnsAsync(user);
+        _auditLogService.Setup(service => service.GetAllForObject<User>(userId))
+            .ReturnsAsync(Enumerable.Empty<AuditLog>());
         var controller = CreateController();
 
-        var result = controller.View(userId);
+        var result = await controller.View((int)userId);
 
         result.Should().BeOfType<ViewResult>();
     }
 
     [Fact]
-    public void CreateUser_WhenModelIsValid_CreatesUser()
+    public async Task CreateUser_WhenModelIsValid_CreatesUser()
     {
         //Arrange
         var controller = CreateController();
@@ -136,7 +140,7 @@ public class UserControllerTests
         };
 
         //Act
-        var result = controller.CreateUser(newUser);
+        var result = await controller.CreateUser(newUser);
 
         //Assert
         _userService.Verify(service => service.CreateUser(It.Is<User>(u =>
@@ -155,7 +159,7 @@ public class UserControllerTests
     {
         _userService
             .Setup(s => s.GetAll())
-            .Returns(testUsers);
+            .ReturnsAsync(testUsers);
 
         return testUsers;
     }

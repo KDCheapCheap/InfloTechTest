@@ -1,15 +1,16 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UserManagement.Data.Entities;
 
 namespace UserManagement.Services.Interfaces;
 
 public interface IAuditLogService
 {
-    void CreateLog<T>(AuditAction action, long objectId, T? objectBefore, T? objectAfter);
+    Task CreateLog<T>(AuditAction action, long objectId, T? objectBefore, T? objectAfter);
 
-    AuditLog GetLog(long id);
+    Task<AuditLog> GetLog(long id);
 
-    IEnumerable<AuditLog> GetAll();
+    Task<IEnumerable<AuditLog>> GetAll();
 
-    IEnumerable<AuditLog> GetAllForObject<T>(long objectId);
+    Task<IEnumerable<AuditLog>> GetAllForObject<T>(long objectId);
 }

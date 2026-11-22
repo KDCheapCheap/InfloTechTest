@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
 using UserManagement.Services.Interfaces;
@@ -16,9 +17,9 @@ public class UsersController : Controller
     public UsersController(IUserService userService, IAuditLogService auditLogService) => (_userService, _auditLogService) = (userService, auditLogService);
 
     [HttpGet]
-    public ViewResult List()
+    public async Task<ViewResult> List()
     {
-        var users = _userService.GetAll().ToList();
+        var users = (await _userService.GetAll()).ToList();
 
         var items = users.Select(p => new UserListItemViewModel
         {
@@ -36,9 +37,9 @@ public class UsersController : Controller
     }
 
     [HttpGet("active/{isActive:bool}")]
-    public ViewResult ListByActiveStatus(bool isActive)
+    public async Task<ViewResult> ListByActiveStatus(bool isActive)
     {
-        var users = _userService.FilterByActive(isActive).ToList();
+        var users = (await _userService.FilterByActive(isActive)).ToList();
 
         var items = users.Select(p => new UserListItemViewModel
         {
@@ -63,7 +64,7 @@ public class UsersController : Controller
 
     [HttpPost("CreateUser")]
     [Route("CreateUser")]
-    public IActionResult CreateUser(CreateUserViewModel newUser)
+    public async Task<IActionResult> CreateUser(CreateUserViewModel newUser)
     {
         if (!ModelState.IsValid)
         {
@@ -79,16 +80,16 @@ public class UsersController : Controller
             IsActive = newUser.IsActive,
         };
 
-        _userService.CreateUser(user);
+        await _userService.CreateUser(user);
 
         //Redirect back to the user list
         return RedirectToAction("List");
     }
 
     [HttpGet("edit/{id:int}")]
-    public IActionResult Edit(int id, string returnUrl = "List")
+    public async Task<IActionResult> Edit(int id, string returnUrl = "List")
     {
-        var user = _userService.GetById(id);
+        var user = await _userService.GetById(id);
         if (user == null)
         {
             TempData["ErrorMessage"] = $"The requested user with id {id} could not be found.";
@@ -110,7 +111,7 @@ public class UsersController : Controller
     }
 
     [HttpPost("edit/{id:int}")]
-    public IActionResult Edit(int id, EditUserViewModel updatedUser)
+    public async Task<IActionResult> Edit(int id, EditUserViewModel updatedUser)
     {
         updatedUser.Id = id;
         updatedUser.ReturnUrl = NormalizeReturnUrl(updatedUser.ReturnUrl);
@@ -120,7 +121,7 @@ public class UsersController : Controller
             return View(updatedUser);
         }
 
-        var user = _userService.GetById(id);
+        var user = await _userService.GetById(id);
         if (user == null)
         {
             TempData["ErrorMessage"] = $"The requested user with id {id} could not be found.";
@@ -133,7 +134,7 @@ public class UsersController : Controller
         user.DateOfBirth = updatedUser.DateOfBirth!.Value;
         user.IsActive = updatedUser.IsActive;
 
-        _userService.EditUser(user);
+        await _userService.EditUser(user);
 
         return updatedUser.ReturnUrl == nameof(View)
             ? RedirectToAction(nameof(View), new { id })
@@ -141,9 +142,9 @@ public class UsersController : Controller
     }
 
     [HttpGet("view/{id:int}")]
-    public IActionResult View(int id)
+    public async Task<IActionResult> View(int id)
     {
-        var user = _userService.GetById(id);
+        var user = await _userService.GetById(id);
 
         if (user == null)
         {
@@ -151,7 +152,7 @@ public class UsersController : Controller
             return RedirectToAction(nameof(List));
         }
 
-        var auditLogs = _auditLogService.GetAllForObject<User>(user.Id);
+        var auditLogs = await _auditLogService.GetAllForObject<User>(user.Id);
 
         var auditLogsModel = auditLogs.Select(al => new AuditLogsItemViewModel()
         {
@@ -179,9 +180,9 @@ public class UsersController : Controller
     }
 
     [HttpPost("delete/{id:int}")]
-    public IActionResult Delete(long id)
+    public async Task<IActionResult> Delete(long id)
     {
-        var user = _userService.GetById(id);
+        var user = await _userService.GetById(id);
 
         if (user == null)
         {
@@ -189,7 +190,7 @@ public class UsersController : Controller
             return RedirectToAction(nameof(List));
         }
 
-        _userService.DeleteUser(user);
+        await _userService.DeleteUser(user);
 
         return RedirectToAction(nameof(List));
     }
