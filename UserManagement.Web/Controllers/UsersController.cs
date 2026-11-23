@@ -47,7 +47,7 @@ public class UsersController : Controller
             Forename = p.Forename,
             Surname = p.Surname,
             Email = p.Email,
-            DateOfBirth = p.DateOfBirth.ToLocalTime(),
+            DateOfBirth = p.DateOfBirth,
             IsActive = p.IsActive,
         });
 
@@ -69,7 +69,7 @@ public class UsersController : Controller
             Forename = p.Forename,
             Surname = p.Surname,
             Email = p.Email,
-            DateOfBirth = p.DateOfBirth.ToLocalTime(),
+            DateOfBirth = p.DateOfBirth,
             IsActive = p.IsActive,
         });
 
@@ -108,7 +108,7 @@ public class UsersController : Controller
             Forename = newUser.Forename,
             Surname = newUser.Surname,
             Email = newUser.Email,
-            DateOfBirth = newUser.DateOfBirth!.Value.ToUniversalTime(),
+            DateOfBirth = newUser.DateOfBirth!.Value,
             IsActive = newUser.IsActive,
         };
         
@@ -141,7 +141,7 @@ public class UsersController : Controller
             Forename = user.Forename,
             Surname = user.Surname,
             Email = user.Email,
-            DateOfBirth = user.DateOfBirth.ToLocalTime(),
+            DateOfBirth = user.DateOfBirth,
             IsActive = user.IsActive,
             ReturnUrl = NormalizeReturnUrl(returnUrl)
         };
@@ -181,7 +181,7 @@ public class UsersController : Controller
         user.Forename = updatedUser.Forename;
         user.Surname = updatedUser.Surname;
         user.Email = updatedUser.Email;
-        user.DateOfBirth = updatedUser.DateOfBirth!.Value.ToUniversalTime();
+        user.DateOfBirth = updatedUser.DateOfBirth!.Value;
         user.IsActive = updatedUser.IsActive;
 
         await _userService.EditUser(user);
@@ -225,7 +225,7 @@ public class UsersController : Controller
             Forename = user.Forename,
             Surname = user.Surname,
             Email = user.Email,
-            DateOfBirth = user.DateOfBirth.ToLocalTime(),
+            DateOfBirth = user.DateOfBirth,
             IsActive = user.IsActive,
             AuditLogs = auditLogsList
         };

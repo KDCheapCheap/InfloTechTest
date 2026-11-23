@@ -91,7 +91,7 @@ public class UserControllerTests
         var controller = CreateController();
         _userService.Setup(service => service.FilterByActive(true)).ReturnsAsync(new[] { activeUser });
 
-        var users = SetupUsers(activeUser, inactiveUser);
+        SetupUsers(activeUser, inactiveUser);
 
         //Act
         var result = await controller.ListByActiveStatus(isActive: true);
@@ -109,7 +109,7 @@ public class UserControllerTests
         var controller = CreateController();
         _userService.Setup(service => service.FilterByActive(false)).ReturnsAsync(new[] { inactiveUser });
 
-        var users = SetupUsers(activeUser, inactiveUser);
+        SetupUsers(activeUser, inactiveUser);
 
         //Act
         var result = await controller.ListByActiveStatus(isActive: false);
@@ -127,7 +127,7 @@ public class UserControllerTests
         var controller = CreateController();
         _userService.Setup(service => service.FilterByActive(false)).ReturnsAsync(new[] { inactiveUser });
 
-        var users = SetupUsers(activeUser, inactiveUser);
+        SetupUsers(activeUser, inactiveUser);
 
         //Act
         var result = await controller.ListByActiveStatus(isActive: false);
@@ -135,7 +135,7 @@ public class UserControllerTests
         //Assert
         result.Model.Should().BeOfType<UserListViewModel>()
             .Which.Items.Should().ContainSingle()
-            .Which.DateOfBirth.Should().Be(new System.DateTime(1984, 10, 28));
+            .Which.DateOfBirth.Should().Be(inactiveUser.DateOfBirth);
     }
 
     [Fact]
