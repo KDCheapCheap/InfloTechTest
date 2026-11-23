@@ -7,6 +7,7 @@ using UserManagement.Services.Domain.Interfaces;
 using UserManagement.Services.Interfaces;
 using UserManagement.Web.Models.Users;
 using UserManagement.WebMS.Controllers;
+using Microsoft.Extensions.Logging;
 
 namespace UserManagement.Data.Tests;
 
@@ -56,6 +57,34 @@ public class UserControllerTests
     }
 
     [Fact]
+    public async Task List_WhenIsActiveTrue_ReturnsOnlyActiveUsers()
+    {
+        var controller = CreateController();
+        _userService.Setup(service => service.FilterByActive(true)).ReturnsAsync(new[] { activeUser });
+        SetupUsers(activeUser, inactiveUser);
+
+        var result = await controller.List(isActive: true);
+
+        result.Model.Should().BeOfType<UserListViewModel>()
+            .Which.Items.Should().ContainSingle()
+            .Which.Email.Should().Be(activeUser.Email);
+    }
+
+    [Fact]
+    public async Task List_WhenIsActiveFalse_ReturnsOnlyInactiveUsers()
+    {
+        var controller = CreateController();
+        _userService.Setup(service => service.FilterByActive(false)).ReturnsAsync(new[] { inactiveUser });
+        SetupUsers(activeUser, inactiveUser);
+
+        var result = await controller.List(isActive: false);
+
+        result.Model.Should().BeOfType<UserListViewModel>()
+            .Which.Items.Should().ContainSingle()
+            .Which.Email.Should().Be(inactiveUser.Email);
+    }
+
+    [Fact]
     public async Task ListByActiveStatus_WhenIsActiveTrue_ReturnsOnlyActiveUsers()
     {
         //Arrange
@@ -90,7 +119,6 @@ public class UserControllerTests
             .Which.Items.Should().ContainSingle()
             .Which.Email.Should().Be(inactiveUser.Email);
     }
-
 
     [Fact]
     public async Task ListByActiveStatus_ReturnsDateOfBirth()
@@ -186,6 +214,7 @@ public class UserControllerTests
 
     private readonly Mock<IUserService> _userService = new();
     private readonly Mock<IAuditLogService> _auditLogService = new();
+    private readonly Mock<ILogger<UsersController>> _logger = new();
     
-    private UsersController CreateController() => new(_userService.Object, _auditLogService.Object);
+    private UsersController CreateController() => new(_userService.Object, _auditLogService.Object, _logger.Object);
 }

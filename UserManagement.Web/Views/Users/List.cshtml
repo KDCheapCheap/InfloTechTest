@@ -79,14 +79,14 @@ else
 <div>
     @{
         var hasStatusFilter = bool.TryParse(
-            ViewContext.RouteData.Values["isActive"]?.ToString(), out var activeFilter);
+            ViewContext.HttpContext.Request.Query["isActive"], out var activeFilter);
     }
     <div class="btn-group">
         <a asp-controller="Users" asp-action="List"
            class="btn @(!hasStatusFilter ? "btn-primary" : "btn-outline-primary")">Show All</a>
-        <a asp-controller="Users" asp-action="ListByActiveStatus" asp-route-isActive="true"
+        <a asp-controller="Users" asp-action="List" asp-route-isActive="true"
            class="btn @(hasStatusFilter && activeFilter ? "btn-primary" : "btn-outline-primary")">Active Only</a>
-        <a asp-controller="Users" asp-action="ListByActiveStatus" asp-route-isActive="false"
+        <a asp-controller="Users" asp-action="List" asp-route-isActive="false"
            class="btn @(hasStatusFilter && !activeFilter ? "btn-primary" : "btn-outline-primary")">Non Active</a>
     </div>
 </div>

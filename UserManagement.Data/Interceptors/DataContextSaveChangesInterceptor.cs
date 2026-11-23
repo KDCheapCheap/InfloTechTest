@@ -12,15 +12,28 @@ using UserManagement.Models;
 
 namespace UserManagement.Data.Interceptors;
 
+/*
+This class intercepts save changes in EFCore to create <see cref="AuditLog"/> entries.
+
+There are two points this class works: before and after saving changes.
+
+Before saving, it captures pending audits, making sure it collects the before state of entities.
+After saving, it creates AuditLog objects from the pending data and persists them.
+*/
 public class DataContextSaveChangesInterceptor : SaveChangesInterceptor
 {
     private List<PendingAudit>? _pendingAudits;
     private bool _savingAuditLogs;
 
+    /// <summary>
+    /// Intercepts saving changes before they are saved and captures pending audits.
+    /// </summary>
+    /// <remarks>This is for synchronous calls.</remarks>
     public override InterceptionResult<int> SavingChanges(
         DbContextEventData eventData,
         InterceptionResult<int> result)
     {
+        // Capture audits before saving
         if (!_savingAuditLogs && eventData.Context is { } context)
         {
             _pendingAudits = CapturePendingAudits(context);
@@ -29,6 +42,10 @@ public class DataContextSaveChangesInterceptor : SaveChangesInterceptor
         return base.SavingChanges(eventData, result);
     }
 
+    /// <summary>
+    /// Intercepts saving changes before they are saved and captures pending audits.
+    /// </summary>
+    /// <remarks>This is for asynchronous calls.</remarks>
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
         InterceptionResult<int> result,
@@ -42,6 +59,10 @@ public class DataContextSaveChangesInterceptor : SaveChangesInterceptor
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 
+    /// <summary>
+    /// Intercepts after changes are saved and persists audits.
+    /// </summary>
+    /// <remarks>This is for synchronous calls.</remarks>
     public override int SavedChanges(SaveChangesCompletedEventData eventData, int result)
     {
         var pendingAudits = _pendingAudits;
@@ -57,6 +78,10 @@ public class DataContextSaveChangesInterceptor : SaveChangesInterceptor
         return base.SavedChanges(eventData, result);
     }
 
+    /// <summary>
+    /// Intercepts after changes are saved and persists audits.
+    /// </summary>
+    /// <remarks>This is for asynchronous calls.</remarks>
     public override async ValueTask<int> SavedChangesAsync(
         SaveChangesCompletedEventData eventData,
         int result,
@@ -93,6 +118,7 @@ public class DataContextSaveChangesInterceptor : SaveChangesInterceptor
     {
         context.ChangeTracker.DetectChanges();
 
+        // Get pending audits before saving
         return context.ChangeTracker.Entries()
             .Where(entry => entry.Entity is not AuditLog &&
                 (entry.State == EntityState.Added ||
